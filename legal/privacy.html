@@ -5,62 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retro Console Pro - Privacy Policy</title>
     <style>
-        :root {
-            --primary-color: #211342;
-            --text-color: #333333;
-            --bg-color: #f9f9f9;
-            --card-bg: #ffffff;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--bg-color);
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        body {
+            background-color: #211342; 
+            background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1.5px, transparent 1.5px);
+            background-size: 32px 32px;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 40px 20px;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--card-bg);
+
+        .document-canvas {
+            background-color: #e6e6e6; 
+            width: 100%;
+            max-width: 680px;
+            border-radius: 16px; 
             padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            box-shadow: 
+                inset 1px 1px 2px rgba(255, 255, 255, 1),
+                inset -3px -3px 6px rgba(0, 0, 0, 0.15),
+                0px 25px 60px rgba(0, 0, 0, 0.45);
         }
-        header {
-            border-bottom: 2px solid #eeeeee;
-            padding-bottom: 20px;
+
+        .lcd-header-plate {
+            background-color: #8b9d2e; 
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.4);
             margin-bottom: 30px;
-            text-align: center;
+            color: #1a2405;
+            border: 1px solid #9aa2a8;
         }
-        h1 { color: var(--primary-color); margin-bottom: 10px; }
-        h2 { color: var(--primary-color); border-bottom: 1px solid #eeeeee; padding-bottom: 8px; }
-        p, li { font-size: 16px; color: #555555; }
-        ul { padding-left: 20px; }
-        .date { font-style: italic; color: #888888; font-size: 14px; }
-        footer { margin-top: 50px; text-align: center; font-size: 14px; color: #999999; border-top: 1px solid #eeeeee; padding-top: 20px; }
+
+        .lcd-header-plate h1 {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .lcd-header-plate p {
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0.85;
+        }
+
+        h2 {
+            font-size: 16px;
+            color: #353a75;
+            margin-top: 26px;
+            margin-bottom: 12px;
+            border-bottom: 2px dashed #ced3d6;
+            padding-bottom: 4px;
+            font-weight: 900;
+        }
+
+        p, li {
+            font-size: 13px;
+            color: #444444;
+            line-height: 1.6;
+            font-weight: bold;
+        }
+
+        p {
+            margin-bottom: 14px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 14px;
+        }
+
+        li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 8px;
+        }
+
+        li::before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #a61c42;
+            font-size: 10px;
+            top: 2px;
+        }
+
+        footer {
+            margin-top: 40px;
+            border-top: 2px dashed #ced3d6;
+            padding-top: 15px;
+            text-align: center;
+            font-size: 11px;
+            color: #7b838a;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Privacy Policy</h1>
-        <p class="date">Last Updated: July 10, 2026</p>
-    </header>
+<div class="document-canvas">
+    <div class="lcd-header-plate">
+        <h1>PRIVACY POLICY</h1>
+        <p>SYSTEM REVISION: v1.4 // COMPLIANCE PORTAL</p>
+        <p>EFFECTIVE DATE: JULY 10, 2026</p>
+    </div>
 
-    <section>
-        <h2>Data Architecture & Telemetry</h2>
-        <p>Retro Console Pro values your data autonomy. This application operates entirely on a client-side architecture.</p>
-        <ul>
-            <li><strong>Local State Management:</strong> Your preferences, high scores, and application configurations are processed and stored locally within your browser environment.</li>
-            <li><strong>No Cloud Infrastructure:</strong> We do not deploy backend cloud tracking servers. No diagnostic analytics, gameplay telemetry, or personal tracking metrics are intercepted or collected.</li>
-            <li><strong>Zero Cookies:</strong> This application runtime operates cleanly without the injection of tracking cookies or third-party analytical code elements.</li>
-        </ul>
-    </section>
+    <h2>1. FIRST-PRINCIPLES DATA ARCHITECTURE</h2>
+    <p>Retro Console Pro values your data autonomy. Built strictly following client-side architectural standards, this system is engineered to run decoupled from centralized tracking servers.</p>
+
+    <h2>2. TELEMETRY & ZERO DATA COLLECTION</h2>
+    <p>Because the runtime execution of this software occurs entirely inside your local browser context, we maintain zero visibility into your usage metrics:</p>
+    <ul>
+        <li><strong>Local Volatile State:</strong> System variables, runtime selection indexes, and high scores are managed exclusively in active memory or local storage targets on your device.</li>
+        <li><strong>No Cloud Pipeline:</strong> We deploy no server-side APIs, analytics pipelines, databases, or tracking logs. Your operational telemetry never leaves your device.</li>
+        <li><strong>No Tracking Cookies:</strong> The underlying code runs cleanly without cookie drops, tracking pixels, or third-party analytic script injections.</li>
+    </ul>
+
+    <h2>3. DEPLOYMENT ENVIRONMENT</h2>
+    <p>This static portal is securely hosted across GitHub's decentralized content delivery network (GitHub Pages). While we do not collect telemetry, automated access logs generated by GitHub infrastructures operate under GitHub's standard network protocols.</p>
 
     <footer>
-        <p>&copy; 2026 Retro Console Pro. All rights reserved.</p>
+        [ RETRO CONSOLE PRO // ZERO-DATA ARCHITECTURE ENGINE ]
     </footer>
 </div>
 
