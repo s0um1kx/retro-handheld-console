@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Handheld Console</title>
+    <title>Retro Console Pro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,43 +11,55 @@
     <div class="workspace-grid"></div>
 
     <div class="console-body">
-        
+        <div class="accent-line-left"></div>
+        <div class="accent-line-right"></div>
+
         <div class="screen-container">
-            <div class="screen" id="console-screen">
+            <div class="screen">
+                <div class="screen-matrix-overlay"></div>
                 <div class="screen-header">
-                    <span class="battery-indicator">🔋 ON</span>
-                    <span class="score-display">SCORE: 0000</span>
+                    <span class="status-indicator">● MATRIX OS</span>
+                    <span class="score-counter">000000</span>
                 </div>
                 <div class="game-viewport" id="game-canvas">
-                    <p class="screen-text">SYSTEM READY...</p>
+                    <div class="menu-ui">
+                        <h1 class="game-title">SNAKE SYSTEM</h1>
+                        <p class="blink-prompt">PRESS START</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="controls-container">
             
-            <div class="dpad">
-                <button class="dpad-btn up" id="btn-up"></button>
-                <button class="dpad-btn left" id="btn-left"></button>
-                <div class="dpad-center"></div>
-                <button class="dpad-btn right" id="btn-right"></button>
-                <button class="dpad-btn down" id="btn-down"></button>
+            <div class="dpad-wrapper">
+                <div class="dpad">
+                    <button class="dpad-btn up" id="btn-up"></button>
+                    <button class="dpad-btn left" id="btn-left"></button>
+                    <div class="dpad-center">
+                        <div class="center-dimple"></div>
+                    </div>
+                    <button class="dpad-btn right" id="btn-right"></button>
+                    <button class="dpad-btn down" id="btn-down"></button>
+                </div>
             </div>
 
-            <div class="action-buttons">
-                <div class="btn-label-pair">
-                    <button class="action-btn btn-b" id="btn-b"></button>
-                    <span>B</span>
-                </div>
-                <div class="btn-label-pair">
-                    <button class="action-btn btn-a" id="btn-a"></button>
-                    <span>A</span>
+            <div class="action-buttons-deck">
+                <div class="action-buttons-housing">
+                    <div class="btn-label-pair">
+                        <button class="action-btn btn-b" id="btn-b"></button>
+                        <span>B</span>
+                    </div>
+                    <div class="btn-label-pair">
+                        <button class="action-btn btn-a" id="btn-a"></button>
+                        <span>A</span>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <div class="menu-buttons">
+        <div class="menu-buttons-deck">
             <div class="pill-pair">
                 <button class="pill-btn" id="btn-select"></button>
                 <span>SELECT</span>
@@ -58,6 +70,12 @@
             </div>
         </div>
 
+        <div class="speaker-grille">
+            <div class="slit"></div>
+            <div class="slit"></div>
+            <div class="slit"></div>
+            <div class="slit"></div>
+        </div>
     </div>
 
     <script src="app.js"></script>
