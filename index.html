@@ -19,15 +19,88 @@
                         <span>.▲▮▮- 12:37 95%</span>
                         <span>[▮▮▮▮]</span>
                     </div>
+                    
                     <div class="game-viewport">
-                        <ul class="retro-menu">
-                            <li class="menu-item active">▶ Snake II</li>
-                            <li class="menu-item">Contacts</li>
-                            <li class="menu-item">Messages</li>
-                            <li class="menu-item">Settings</li>
-                            <li class="menu-item">About</li>
-                        </ul>
+                        <div id="view-main-menu" class="screen-view active-view">
+                            <ul class="retro-menu">
+                                <li class="menu-item active">▶ Games</li>
+                                <li class="menu-item">Settings</li>
+                                <li class="menu-item">Blog & News</li>
+                                <li class="menu-item">Contact Us</li>
+                                <li class="menu-item">About Us</li>
+                            </ul>
+                        </div>
+
+                        <div id="view-games" class="screen-view">
+                            <div class="view-title">GAMES</div>
+                            <ul class="retro-menu">
+                                <li class="menu-item active">▶ Snake II</li>
+                                <li class="menu-item" style="opacity: 0.35;">[Empty ROM Slot]</li>
+                            </ul>
+                        </div>
+
+                        <div id="view-settings" class="screen-view">
+                            <div class="view-title">SETTINGS</div>
+                            <ul class="retro-menu">
+                                <li class="submenu-item active">▶ Audio</li>
+                                <li class="submenu-item">Video Shaders</li>
+                                <li class="submenu-item">Controls</li>
+                            </ul>
+                        </div>
+
+                        <div id="view-blog" class="screen-view">
+                            <div class="view-title">BLOG & NEWS</div>
+                            <div class="info-content-block">
+                                <p class="static-text-line">★ UPDATE LAUNCH ★</p>
+                                <p class="static-text-line">OS v1.4 Is Live!</p>
+                                <p class="static-text-line">New Matrix BG Added</p>
+                            </div>
+                        </div>
+
+                        <div id="view-contact" class="screen-view">
+                            <div class="view-title">CONTACT US</div>
+                            <div class="info-content-block">
+                                <p class="static-text-line">Support Desk:</p>
+                                <p class="static-text-line">src@retro-pro.cc</p>
+                            </div>
+                        </div>
+
+                        <div id="view-about" class="screen-view">
+                            <div class="view-title">ABOUT US</div>
+                            <ul class="retro-menu">
+                                <li class="submenu-item active">▶ Careers</li>
+                                <li class="submenu-item">Legal Notice</li>
+                            </ul>
+                        </div>
+
+                        <div id="view-legal" class="screen-view">
+                            <div class="view-title">LEGAL NOTICE</div>
+                            <ul class="retro-menu">
+                                <li class="legal-item active">▶ Privacy Policy</li>
+                                <li class="legal-item">Terms of Service</li>
+                            </ul>
+                        </div>
+
+                        <div id="view-privacy" class="screen-view">
+                            <div class="view-title">PRIVACY POLICY</div>
+                            <div class="info-content-block">
+                                <p class="static-text-line">Data stays local.</p>
+                                <p class="static-text-line">No cloud tracking</p>
+                                <p class="static-text-line">or telemetries.</p>
+                            </div>
+                        </div>
+
+                        <div id="view-terms" class="screen-view">
+                            <div class="view-title">TERMS OF SERVICE</div>
+                            <div class="info-content-block">
+                                <p class="static-text-line">Play fair. Do not</p>
+                                <p class="static-text-line">reverse-engineer</p>
+                                <p class="static-text-line">the hardware firmware.</p>
+                            </div>
+                        </div>
+
                     </div>
+
                     <div class="screen-footer-bar">
                         <span>Menu</span>
                         <span>Back</span>
@@ -42,7 +115,6 @@
         </div>
 
         <div class="controls-container">
-            
             <div class="dpad-wrapper">
                 <div class="dpad">
                     <button class="dpad-btn up" id="btn-up"></button>
@@ -50,7 +122,6 @@
                     <div class="dpad-center"></div>
                     <button class="dpad-btn right" id="btn-right"></button>
                     <button class="dpad-btn down" id="btn-down"></button>
-                    
                     <div class="center-pivot-recess"></div>
                 </div>
             </div>
@@ -65,7 +136,6 @@
                     <span class="chassis-btn-label">A</span>
                 </div>
             </div>
-
         </div>
 
         <div class="menu-buttons-deck">
