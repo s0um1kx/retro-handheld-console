@@ -13,10 +13,11 @@ const views = {
     'blog': document.getElementById('view-blog'),
     'contact': document.getElementById('view-contact'),
     'about': document.getElementById('view-about'),
+    'careers': document.getElementById('view-careers'),
     'legal': document.getElementById('view-legal'),
     'privacy': document.getElementById('view-privacy'),
     'terms': document.getElementById('view-terms'),
-    'license': document.getElementById('view-license') // Added License view mapping
+    'license': document.getElementById('view-license')
 };
 
 const labelFooterLeft = document.querySelector('.screen-footer-bar span:first-child');
@@ -29,10 +30,11 @@ const backNavigationMap = {
     'blog': 'main-menu',
     'contact': 'main-menu',
     'about': 'main-menu',
+    'careers': 'about',
     'legal': 'about',
     'privacy': 'legal',
     'terms': 'legal',
-    'license': 'legal' // Added reverse mapping back to legal menu
+    'license': 'legal'
 };
 
 // Render Primary Views (Main Menu, Games)
@@ -88,8 +90,12 @@ function changeView(targetView) {
         currentLegalSelectionIndex = 0;
     }
     
-    Object.values(views).forEach(v => v.classList.remove('active-view'));
-    views[targetView].classList.add('active-view');
+    Object.values(views).forEach(v => {
+        if (v) v.classList.remove('active-view');
+    });
+    if (views[targetView]) {
+        views[targetView].classList.add('active-view');
+    }
     
     if (targetView === 'main-menu') {
         labelFooterLeft.textContent = "Menu";
@@ -164,8 +170,10 @@ document.getElementById('btn-a').addEventListener('click', () => {
             case 4: changeView('about'); break;
         }
     } else if (currentView === 'about') {
-        if (currentSubSelectionIndex === 1) {
-            changeView('legal'); // Enters the Legal submenu
+        if (currentSubSelectionIndex === 0) {
+            changeView('careers'); 
+        } else if (currentSubSelectionIndex === 1) {
+            changeView('legal'); 
         }
     } else if (currentView === 'legal') {
         if (currentLegalSelectionIndex === 0) {
@@ -173,7 +181,7 @@ document.getElementById('btn-a').addEventListener('click', () => {
         } else if (currentLegalSelectionIndex === 1) {
             changeView('terms');
         } else if (currentLegalSelectionIndex === 2) {
-            changeView('license'); // Enters License data leaf node
+            changeView('license'); 
         }
     }
 });
@@ -195,7 +203,7 @@ const keyboardMap = {
     'ArrowLeft': 'btn-left', 'a': 'btn-left', 'A': 'btn-left',
     'ArrowRight': 'btn-right', 'd': 'btn-right', 'D': 'btn-right',
     'z': 'btn-a', 'Z': 'btn-a',
-    'x': 'btn-b', 'X': 'btn-b',
+    'x': 'btn-b', 'X': 'btn-b', 'Escape': 'btn-b',
     'Enter': 'btn-start',
     'Shift': 'btn-select'
 };
