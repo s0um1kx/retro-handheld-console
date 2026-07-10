@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. Base Reset & Centering Layout
+   1. Dynamic Grid Workspace Backdrop
    ========================================================================== */
 * {
     box-sizing: border-box;
@@ -9,7 +9,12 @@
 }
 
 body {
-    background-color: #2b2b2b; /* Dark backdrop to make console pop */
+    background-color: #12131a;
+    /* Create the technical grid background scene from your inspiration */
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,194 +23,179 @@ body {
 }
 
 /* ==========================================================================
-   2. Main Console Outer Body Shell
+   2. Console Shell Structure
    ========================================================================== */
 .console-body {
-    background-color: #c3c7db; /* Classic retro gray plastic */
+    background-color: #cbd2d9; /* Clean, sleek retro silver-gray */
     width: 380px;
-    height: 640px;
-    border-radius: 20px 20px 60px 20px; /* Swept bottom right corner like classic handhelds */
-    padding: 30px;
-    
-    /* Layered shadows to simulate a 3D physical object */
-    box-shadow: 
-        inset 5px 5px 0px rgba(255, 255, 255, 0.6),  /* Top-left inner highlight */
-        inset -5px -5px 0px rgba(0, 0, 0, 0.2),     /* Bottom-right inner shadow */
-        10px 15px 30px rgba(0, 0, 0, 0.4);           /* Drop shadow onto desk */
-        
+    height: 660px;
+    border-radius: 20px 20px 70px 20px;
+    padding: 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 35px; /* Strict vertical spacing between Screen, Controls, and Menu */
+    position: relative;
+    box-shadow: 
+        inset 4px 4px 0px rgba(255, 255, 255, 0.8),
+        inset -4px -4px 0px rgba(0, 0, 0, 0.2),
+        0px 30px 60px rgba(0, 0, 0, 0.7);
+}
+
+/* Speaker Accents */
+.console-body::after {
+    content: '';
+    position: absolute;
+    bottom: 35px;
+    right: 40px;
+    width: 55px;
+    height: 35px;
+    background: repeating-linear-gradient(
+        -60deg,
+        transparent,
+        transparent 5px,
+        #9aa2ac 5px,
+        #9aa2ac 9px
+    );
+}
+
+/* ==========================================================================
+   3. Screen Assembly & Interior Viewport
+   ========================================================================== */
+.screen-container {
+    background-color: #232529; /* Dark bezel shell framing */
+    width: 100%;
+    height: 240px;
+    border-radius: 10px 10px 30px 10px;
+    padding: 18px;
+    box-shadow: inset 0px 5px 10px rgba(0, 0, 0, 0.8);
+}
+
+.screen {
+    background-color: #8bac0f; /* Matrix dot-matrix olive screen palette */
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+.screen-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: bold;
+    color: #0f380f;
+    border-bottom: 1px solid #0f380f;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+
+.game-viewport {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
 }
 
-/* ==========================================================================
-   3. Screen Bezel & Display Window
-   ========================================================================== */
-.screen-container {
-    background-color: #3d3f42; /* Dark graphite bezel framing the matrix display */
-    width: 100%;
-    height: 200px;
-    border-radius: 10px;
-    padding: 20px 30px; /* Thicker borders on the sides mimicking classic layout */
-    
-    /* Sunken physical inset appearance */
-    box-shadow: 
-        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
-        1px 1px 1px rgba(255, 255, 255, 0.4);
-        
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.screen {
-    background-color: #8bac0f; /* Classic GameBoy matrix olive green tint */
-    width: 100%;
-    height: 100%;
-    border-radius: 4px;
-    padding: 10px;
-    
-    /* Inward shadow inside screen to give depth under the plastic guard */
-    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
-    
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-}
-
 .screen-text {
-    color: #0f380f; /* Darkest monochrome green tone for retro text pixels */
-    font-size: 14px;
+    color: #0f380f;
+    font-size: 15px;
     font-weight: bold;
     letter-spacing: 1px;
-    text-transform: uppercase;
-    
-    /* Blinking retro cursor simulation */
-    border-right: 2px solid #0f380f;
-    animation: blink 1s step-end infinite;
-}
-
-/* Cursor blink physics */
-@keyframes blink {
-    from, to { border-color: transparent }
-    50% { border-color: #0f380f; }
+    text-align: center;
 }
 
 /* ==========================================================================
-   3. Screen Bezel & Display Window
+   4. The Clean, Gapless D-Pad Grid Cross
    ========================================================================== */
-.screen-container {
-    background-color: #3d3f42; /* Dark graphite bezel framing the matrix display */
+.controls-container {
     width: 100%;
-    height: 200px;
-    border-radius: 10px;
-    padding: 20px 30px; /* Thicker borders on the sides mimicking classic layout */
-    
-    /* Sunken physical inset appearance */
-    box-shadow: 
-        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
-        1px 1px 1px rgba(255, 255, 255, 0.4);
-        
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    margin-top: 45px;
+    padding: 0 5px;
 }
 
-.screen {
-    background-color: #8bac0f; /* Classic GameBoy matrix olive green tint */
-    width: 100%;
-    height: 100%;
-    border-radius: 4px;
-    padding: 10px;
-    
-    /* Inward shadow inside screen to give depth under the plastic guard */
-    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
-    
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
+.dpad {
+    display: grid;
+    grid-template-areas: 
+        ".    up    ."
+        "left center right"
+        ".    down  .";
+    grid-template-columns: 36px 36px 36px;
+    grid-template-rows: 36px 36px 36px;
 }
 
-.screen-text {
-    color: #0f380f; /* Darkest monochrome green tone for retro text pixels */
-    font-size: 14px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    
-    /* Blinking retro cursor simulation */
-    border-right: 2px solid #0f380f;
-    animation: blink 1s step-end infinite;
+.dpad-btn {
+    background-color: #282a30;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    position: relative;
 }
 
-/* Cursor blink physics */
-@keyframes blink {
-    from, to { border-color: transparent }
-    50% { border-color: #0f380f; }
+.dpad-btn.up    { grid-area: up; border-radius: 5px 5px 0 0; }
+.dpad-btn.down  { grid-area: down; border-radius: 0 0 5px 5px; }
+.dpad-btn.left  { grid-area: left; border-radius: 5px 0 0 5px; }
+.dpad-btn.right { grid-area: right; border-radius: 0 5px 5px 0; }
+.dpad-center    { grid-area: center; background-color: #282a30; }
+
+/* Direct triangle indicator arrows inside D-pad buttons */
+.dpad-btn::after {
+    content: '';
+    position: absolute;
+    border: 5px solid transparent;
 }
+.dpad-btn.up::after    { border-bottom-color: #111; top: 6px; left: 13px; }
+.dpad-btn.down::after  { border-top-color: #111; bottom: 6px; left: 13px; }
+.dpad-btn.left::after  { border-right-color: #111; left: 6px; top: 13px; }
+.dpad-btn.right::after { border-left-color: #111; right: 6px; top: 13px; }
 
 /* ==========================================================================
-   6. Action Buttons Area (A / B)
+   5. Slanted Action Buttons
    ========================================================================== */
 .action-buttons {
     display: flex;
-    gap: 20px;
-    transform: rotate(-15deg); /* Slants the entire B-A housing block */
+    gap: 15px;
+    transform: rotate(-15deg);
 }
 
 .btn-label-pair {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
-/* Base circular button dimensions */
 .action-btn {
-    background-color: #a22238; /* Classic dark matte maroon/burgundy */
-    color: transparent; /* Text hidden, using labels beneath instead */
-    border: none;
+    background-color: #a81c34;
     width: 45px;
     height: 45px;
-    border-radius: 50%; /* Perfect circle */
+    border-radius: 50%;
+    border: none;
     cursor: pointer;
-    outline: none;
-    user-select: none;
-    
-    /* Strong shadow below to elevate button, plus smooth compression click physics */
-    box-shadow: 
-        inset 2px 2px 0px rgba(255,255,255,0.2),
-        2px 3px 0px #5c121e;
-    position: relative;
-    transition: transform 0.05s ease, box-shadow 0.05s ease;
+    box-shadow: 0px 4px 0px #5c0f1e;
 }
 
-/* Action button interactive depth tracking */
-.action-btn:active {
-    transform: translateY(3px);
-    box-shadow: 
-        inset 2px 2px 0px rgba(255,255,255,0.1),
-        0px 0px 0px #5c121e;
-}
-
-/* Descriptive A / B labels positioned below the nodes */
 .btn-label-pair span {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
-    color: #313340;
-    transform: rotate(15deg); /* Counter-rotates text back so labels stay perfectly flat */
+    color: #333;
+    transform: rotate(15deg);
 }
 
 /* ==========================================================================
-   7. System Menu Buttons (Select / Start)
+   6. Menu Bar (Select / Start)
    ========================================================================== */
 .menu-buttons {
     display: flex;
-    gap: 25px;
-    margin-top: auto; /* Pushes utility deck cleanly towards the bottom border */
-    margin-bottom: 10px;
+    gap: 30px;
+    margin-top: auto;
+    margin-bottom: 35px;
 }
 
 .pill-pair {
@@ -215,40 +205,32 @@ body {
     gap: 6px;
 }
 
-/* Classic rubber pill button design */
 .pill-btn {
-    background-color: #7b808a; /* Dark gray rubber composite finish */
-    border: none;
-    width: 50px;
+    background-color: #727982;
+    width: 55px;
     height: 12px;
-    border-radius: 20px; /* Highly rounded capsule format */
+    border-radius: 20px;
+    border: none;
     cursor: pointer;
-    outline: none;
-    transform: rotate(-25deg); /* Slanted rubber pad alignment */
-    
-    box-shadow: 
-        inset 1px 1px 0px rgba(255,255,255,0.2),
-        1px 2px 0px #4b4e54;
-    transition: transform 0.05s ease, box-shadow 0.05s ease;
-}
-
-.pill-btn:active {
-    /* Subtle uniform translation change mimicking elastic soft-travel rubber buttons */
-    box-shadow: 0px 0px 0px #4b4e54;
+    transform: rotate(-20deg);
+    box-shadow: 0px 3px 0px #40444a;
 }
 
 .pill-pair span {
     font-size: 10px;
     font-weight: bold;
-    color: #4b4e54;
-    letter-spacing: 0.5px;
+    color: #444;
 }
 
-/* Helper class triggered via JS to give visual feedback on keyboard press */
-.dpad-btn.keyboard-active, 
-.action-btn.keyboard-active, 
-.pill-btn.keyboard-active {
-    background-color: #111111 !important;
-    transform: translateY(3px);
-    box-shadow: none;
+/* ==========================================================================
+   7. Press Dynamics
+   ========================================================================== */
+.dpad-btn:active, .dpad-btn.keyboard-active { background-color: #15161a; }
+.action-btn:active, .action-btn.keyboard-active {
+    transform: translateY(4px);
+    box-shadow: 0px 0px 0px #5c0f1e;
+}
+.pill-btn:active, .pill-btn.keyboard-active {
+    transform: rotate(-20deg) translateY(3px);
+    box-shadow: 0px 0px 0px #40444a;
 }

@@ -8,33 +8,39 @@
 </head>
 <body>
 
+    <div class="workspace-grid"></div>
+
     <div class="console-body">
         
         <div class="screen-container">
             <div class="screen" id="console-screen">
-                <p class="screen-text">SYSTEM READY...</p>
+                <div class="screen-header">
+                    <span class="battery-indicator">🔋 ON</span>
+                    <span class="score-display">SCORE: 0000</span>
+                </div>
+                <div class="game-viewport" id="game-canvas">
+                    <p class="screen-text">SYSTEM READY...</p>
+                </div>
             </div>
         </div>
 
         <div class="controls-container">
             
             <div class="dpad">
-                <button class="dpad-btn up" id="btn-up">▲</button>
-                <div class="dpad-row">
-                    <button class="dpad-btn left" id="btn-left">◀</button>
-                    <div class="dpad-center"></div>
-                    <button class="dpad-btn right" id="btn-right">▶</button>
-                </div>
-                <button class="dpad-btn down" id="btn-down">▼</button>
+                <button class="dpad-btn up" id="btn-up"></button>
+                <button class="dpad-btn left" id="btn-left"></button>
+                <div class="dpad-center"></div>
+                <button class="dpad-btn right" id="btn-right"></button>
+                <button class="dpad-btn down" id="btn-down"></button>
             </div>
 
             <div class="action-buttons">
                 <div class="btn-label-pair">
-                    <button class="action-btn btn-b" id="btn-b">B</button>
+                    <button class="action-btn btn-b" id="btn-b"></button>
                     <span>B</span>
                 </div>
                 <div class="btn-label-pair">
-                    <button class="action-btn btn-a" id="btn-a">A</button>
+                    <button class="action-btn btn-a" id="btn-a"></button>
                     <span>A</span>
                 </div>
             </div>
