@@ -15,7 +15,8 @@ const views = {
     'about': document.getElementById('view-about'),
     'legal': document.getElementById('view-legal'),
     'privacy': document.getElementById('view-privacy'),
-    'terms': document.getElementById('view-terms')
+    'terms': document.getElementById('view-terms'),
+    'license': document.getElementById('view-license') // Added License view mapping
 };
 
 const labelFooterLeft = document.querySelector('.screen-footer-bar span:first-child');
@@ -30,7 +31,8 @@ const backNavigationMap = {
     'about': 'main-menu',
     'legal': 'about',
     'privacy': 'legal',
-    'terms': 'legal'
+    'terms': 'legal',
+    'license': 'legal' // Added reverse mapping back to legal menu
 };
 
 // Render Primary Views (Main Menu, Games)
@@ -170,6 +172,8 @@ document.getElementById('btn-a').addEventListener('click', () => {
             changeView('privacy');
         } else if (currentLegalSelectionIndex === 1) {
             changeView('terms');
+        } else if (currentLegalSelectionIndex === 2) {
+            changeView('license'); // Enters License data leaf node
         }
     }
 });
