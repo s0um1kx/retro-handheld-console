@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Handheld Console</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="console-body">
+        
+        <div class="screen-container">
+            <div class="screen" id="console-screen">
+                <p class="screen-text">SYSTEM READY...</p>
+            </div>
+        </div>
+
+        <div class="controls-container">
+            
+            <div class="dpad">
+                <button class="dpad-btn up" id="btn-up">▲</button>
+                <div class="dpad-row">
+                    <button class="dpad-btn left" id="btn-left">◀</button>
+                    <div class="dpad-center"></div>
+                    <button class="dpad-btn right" id="btn-right">▶</button>
+                </div>
+                <button class="dpad-btn down" id="btn-down">▼</button>
+            </div>
+
+            <div class="action-buttons">
+                <div class="btn-label-pair">
+                    <button class="action-btn btn-b" id="btn-b">B</button>
+                    <span>B</span>
+                </div>
+                <div class="btn-label-pair">
+                    <button class="action-btn btn-a" id="btn-a">A</button>
+                    <span>A</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="menu-buttons">
+            <div class="pill-pair">
+                <button class="pill-btn" id="btn-select"></button>
+                <span>SELECT</span>
+            </div>
+            <div class="pill-pair">
+                <button class="pill-btn" id="btn-start"></button>
+                <span>START</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
