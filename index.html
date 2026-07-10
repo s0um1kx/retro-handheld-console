@@ -4,30 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retro Console Pro</title>
-    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="stylesheet" href="style.css?v=1.4">
 </head>
 <body>
 
     <div class="workspace-grid"></div>
 
     <div class="console-body">
-        <div class="accent-line-left"></div>
-        <div class="accent-line-right"></div>
-
         <div class="screen-container">
-            <div class="screen">
-                <div class="screen-matrix-overlay"></div>
-                <div class="screen-header">
-                    <span class="status-indicator">● MATRIX OS</span>
-                    <span class="score-counter">000000</span>
-                </div>
-                <div class="game-viewport" id="game-canvas">
-                    <div class="menu-ui">
-                        <h1 class="game-title">SNAKE SYSTEM</h1>
-                        <p class="blink-prompt">PRESS START</p>
+            <div class="bezel-middle-row">
+                <div class="screen">
+                    <div class="screen-matrix-overlay"></div>
+                    <div class="screen-status-bar">
+                        <span>.▲▮▮- 12:37 95%</span>
+                        <span>[▮▮▮▮]</span>
+                    </div>
+                    <div class="game-viewport">
+                        <ul class="retro-menu">
+                            <li class="menu-item active">▶ Snake II</li>
+                            <li class="menu-item">Contacts</li>
+                            <li class="menu-item">Messages</li>
+                            <li class="menu-item">Settings</li>
+                            <li class="menu-item">About</li>
+                        </ul>
+                    </div>
+                    <div class="screen-footer-bar">
+                        <span>Menu</span>
+                        <span>Back</span>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="brand-logo-text">
+            <span class="brand-main">RETRO</span>
+            <span class="brand-sub">CONSOLE<sup> PRO</sup></span>
         </div>
 
         <div class="controls-container">
@@ -36,24 +47,22 @@
                 <div class="dpad">
                     <button class="dpad-btn up" id="btn-up"></button>
                     <button class="dpad-btn left" id="btn-left"></button>
-                    <div class="dpad-center">
-                        <div class="center-dimple"></div>
-                    </div>
+                    <div class="dpad-center"></div>
                     <button class="dpad-btn right" id="btn-right"></button>
                     <button class="dpad-btn down" id="btn-down"></button>
+                    
+                    <div class="center-pivot-recess"></div>
                 </div>
             </div>
 
-            <div class="action-buttons-deck">
-                <div class="action-buttons-housing">
-                    <div class="btn-label-pair">
-                        <button class="action-btn btn-b" id="btn-b"></button>
-                        <span>B</span>
-                    </div>
-                    <div class="btn-label-pair">
-                        <button class="action-btn btn-a" id="btn-a"></button>
-                        <span>A</span>
-                    </div>
+            <div class="action-buttons-zone">
+                <div class="btn-label-pair position-b">
+                    <button class="action-btn btn-b" id="btn-b">B</button>
+                    <span class="chassis-btn-label">B</span>
+                </div>
+                <div class="btn-label-pair position-a">
+                    <button class="action-btn btn-a" id="btn-a">A</button>
+                    <span class="chassis-btn-label">A</span>
                 </div>
             </div>
 
@@ -71,6 +80,8 @@
         </div>
 
         <div class="speaker-grille">
+            <div class="slit"></div>
+            <div class="slit"></div>
             <div class="slit"></div>
             <div class="slit"></div>
             <div class="slit"></div>
