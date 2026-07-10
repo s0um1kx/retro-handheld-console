@@ -37,14 +37,23 @@ document.getElementById('btn-down').addEventListener('click', () => {
 // 3. Hardware Controller Keyboard Mapping
 // ==========================================================================
 const keyboardMap = {
-    'ArrowUp': 'btn-up',
-    'ArrowDown': 'btn-down',
-    'ArrowLeft': 'btn-left',
-    'ArrowRight': 'btn-right',
-    'z': 'btn-a', 'Z': 'btn-a',
-    'x': 'btn-b', 'X': 'btn-b',
-    'Enter': 'btn-start',
-    'Shift': 'btn-select'
+    // Arrow Key Mappings
+    'ArrowUp': 'btn-up', 
+    'ArrowDown': 'btn-down', 
+    'ArrowLeft': 'btn-left', 
+    'ArrowRight': 'btn-right', 
+    
+    // WASD Key Mappings (Handles lowercase & uppercase)
+    'w': 'btn-up', 'W': 'btn-up',
+    's': 'btn-down', 'S': 'btn-down',
+    'a': 'btn-left', 'A': 'btn-left',
+    'd': 'btn-right', 'D': 'btn-right',
+    
+    // Action Button Mappings
+    'z': 'btn-a', 'Z': 'btn-a', 
+    'x': 'btn-b', 'X': 'btn-b', 
+    'Enter': 'btn-start', 
+    'Shift': 'btn-select' 
 };
 
 window.addEventListener('keydown', (event) => {
