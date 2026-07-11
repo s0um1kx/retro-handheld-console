@@ -18,6 +18,7 @@ const views = {
     'settings': document.getElementById('view-settings'),
     'audio': document.getElementById('view-audio'),
     'controls': document.getElementById('view-controls'),
+    'theme': document.getElementById('view-theme'),
     'blog': document.getElementById('view-blog'),
     'contact': document.getElementById('view-contact'),
     'about': document.getElementById('view-about'),
@@ -37,6 +38,7 @@ const backNavigationMap = {
     'settings': 'main-menu',
     'audio': 'settings',
     'controls': 'settings',
+    'theme': 'settings',
     'blog': 'main-menu',
     'contact': 'main-menu',
     'about': 'main-menu',
@@ -145,23 +147,26 @@ function updateBGMVolume() {
     }
 }
 
-// Render Audio Screen State
+// Render Audio Screen State (Fixed character positions prevents layout jump)
 function renderAudioView() {
-    const musicState = isMusicOn ? '▶ [ ON ] /  OFF ' : '  [ OFF] /  ON  ';
-    const sfxState = isSFXOn ? '▶ [ ON ] /  OFF ' : '  [ OFF] /  ON  ';
+    const musicCheck = isMusicOn ? '[■] ON   [ ] OFF' : '[ ] ON   [■] OFF';
+    const sfxCheck = isSFXOn ? '[■] ON   [ ] OFF' : '[ ] ON   [■] OFF';
 
     const totalBlocks = 10;
     const filledBlocks = Math.round((masterVolume / 100) * totalBlocks);
     const barStr = '█'.repeat(filledBlocks) + '░'.repeat(totalBlocks - filledBlocks);
-    const volPrefix = currentAudioIndex === 2 ? '▶ ' : '  ';
 
-    const line0 = currentAudioIndex === 0 ? `▶ Music (BGM) : ${isMusicOn ? '[ ON ] / OFF' : 'ON / [ OFF ]'}` : `  Music (BGM) : ${isMusicOn ? '[ ON ] / OFF' : 'ON / [ OFF ]'}`;
-    const line1 = currentAudioIndex === 1 ? `▶ Sound (SFX) : ${isSFXOn ? '[ ON ] / OFF' : 'ON / [ OFF ]'}` : `  Sound (SFX) : ${isSFXOn ? '[ ON ] / OFF' : 'ON / [ OFF ]'}`;
-    const line2 = `${volPrefix}Master Vol  : ${barStr} (${masterVolume}%)`;
+    const prefix0 = currentAudioIndex === 0 ? '▶ ' : '  ';
+    const prefix1 = currentAudioIndex === 1 ? '▶ ' : '  ';
+    const prefix2 = currentAudioIndex === 2 ? '▶ ' : '  ';
+
+    const line0 = `${prefix0}Music (BGM) : ${musicCheck}`;
+    const line1 = `${prefix1}Sound (SFX) : ${sfxCheck}`;
+    const line2 = `${prefix2}Master Vol  : ${barStr} (${masterVolume}%)`;
 
     const block = document.querySelector('.audio-config-block');
     if (block) {
-        block.textContent = `=== AUDIO SETTINGS ===\n\n  [ SETTING ]   [ STATE ]\n${line0}\n${line1}\n${line2}\n\n======================\n [LEFT/RIGHT] Change\n [B/ESC] to Return`;
+        block.textContent = `=== AUDIO SETTINGS ===\n\n  [ SETTING ]   [ STATE ]\n${line0}\n${line1}\n${line2}\n\n======================\n [LEFT/RIGHT] Toggle\n [B/ESC] to Return`;
     }
 }
 
@@ -349,6 +354,8 @@ document.getElementById('btn-a').addEventListener('click', () => {
             changeView('audio');
         } else if (currentSubSelectionIndex === 1) {
             changeView('controls');
+        } else if (currentSubSelectionIndex === 2) {
+            changeView('theme');
         }
     } else if (currentView === 'about') {
         if (currentSubSelectionIndex === 0) {
