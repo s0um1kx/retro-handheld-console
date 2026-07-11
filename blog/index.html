@@ -3,73 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Console Pro - Official Blog</title>
-    <!-- Imports your main console stylesheet -->
+    
+    <!-- SEO Optimization Meta Tags -->
+    <title>Retro Console Pro - Official Engineering Blog & Retro Gaming Hub</title>
+    <meta name="description" content="Official development logs, retro gaming insights, browser emulation architecture, and product updates for Retro Console Pro handheld.">
+    <meta name="keywords" content="retro console, handheld gaming, browser emulation, retro games, devlog, web development, web audio, 8-bit games">
+    <meta name="author" content="Retro Console Pro Team">
+
+    <!-- Open Graph for Social Media & Link Previews -->
+    <meta property="og:title" content="Retro Console Pro - Official Blog & Product Updates">
+    <meta property="og:description" content="Explore dev logs, retro gaming history, browser emulation engineering, and upcoming software drops.">
+    <meta property="og:type" content="website">
+
+    <!-- Inherit Parent Stylesheet -->
     <link rel="stylesheet" href="../style.css?v=1.4">
+
     <style>
-        /* Dedicated retro blog layout adjustments */
+        /* Dedicated Blog Engine Styling */
         .blog-scroll-area {
             width: 100%;
             height: 100%;
             overflow-y: auto;
-            padding-right: 4px;
+            padding-right: 6px;
             text-align: left;
+            box-sizing: border-box;
         }
 
-        /* Retro custom scrollbar */
+        /* LCD Custom Scrollbar */
         .blog-scroll-area::-webkit-scrollbar {
             width: 4px;
         }
+        .blog-scroll-area::-webkit-scrollbar-track {
+            background: rgba(26, 36, 5, 0.15);
+        }
         .blog-scroll-area::-webkit-scrollbar-thumb {
             background: #1a2405;
+            border-radius: 2px;
         }
 
         .blog-header-block {
             text-align: center;
-            border-bottom: 1px dashed #1a2405;
-            padding-bottom: 6px;
-            margin-bottom: 10px;
-        }
-
-        .blog-entry {
-            border-bottom: 1px dotted #1a2405;
+            border-bottom: 2px dashed #1a2405;
             padding-bottom: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
-        .blog-entry:last-child {
+        .blog-post {
+            border-bottom: 1px dotted #1a2405;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+        }
+
+        .blog-post:last-child {
             border-bottom: none;
             margin-bottom: 0;
         }
 
-        .blog-entry-title {
+        .blog-post-title {
             font-size: 11px;
             font-weight: 900;
             color: #1a2405;
             text-transform: uppercase;
-            line-height: 1.2;
+            line-height: 1.25;
+            letter-spacing: 0.2px;
         }
 
-        .blog-entry-date {
-            font-size: 9px;
+        .blog-post-meta {
+            font-size: 8.5px;
             font-weight: bold;
-            opacity: 0.8;
-            margin-bottom: 4px;
+            opacity: 0.85;
+            margin: 3px 0 6px 0;
+            display: flex;
+            gap: 6px;
+            align-items: center;
         }
 
-        .blog-entry-text {
-            font-size: 10px;
-            font-weight: 600;
-            line-height: 1.35;
-            color: #1a2405;
-        }
-
-        .highlight-tag {
+        .tag-badge {
             background-color: #1a2405;
             color: #8b9d2e;
             padding: 0 4px;
-            font-size: 9px;
-            font-weight: bold;
+            font-size: 8px;
+            font-weight: 900;
+            border-radius: 2px;
+        }
+
+        .blog-post-content {
+            font-size: 9.5px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #1a2405;
+        }
+
+        .blog-post-content p {
+            margin-bottom: 6px;
+        }
+
+        .blog-post-content ul {
+            margin: 4px 0 6px 12px;
+            padding: 0;
+        }
+
+        .blog-post-content li {
+            margin-bottom: 2px;
+        }
+
+        /* SEO Keyword Highlight Style */
+        .seo-term {
+            font-weight: 800;
+            border-bottom: 1px solid #1a2405;
         }
     </style>
 </head>
@@ -89,38 +130,86 @@
                     
                     <div class="game-viewport">
                         <div class="screen-view active-view">
-                            <div class="blog-scroll-area">
+                            <div class="blog-scroll-area" id="blogScroll">
                                 
                                 <div class="blog-header-block">
-                                    <div class="view-title" style="padding-left:0; border:none; margin:0;">OFFICIAL DEV LOGS</div>
-                                    <div style="font-size: 9px; font-weight: bold;">==========================</div>
+                                    <div class="view-title" style="padding-left:0; border:none; margin:0; text-align:center;">
+                                        OFFICIAL DEVLOG & HUB
+                                    </div>
+                                    <div style="font-size: 8px; font-weight: bold; margin-top: 2px;">
+                                        ==========================
+                                    </div>
                                 </div>
 
-                                <!-- POST 1 -->
-                                <article class="blog-entry">
-                                    <div class="blog-entry-title">▶ v1.4 RELEASE: LCD CENTERING FIX</div>
-                                    <div class="blog-entry-date">2026-07-11 • <span class="highlight-tag">UPDATE</span></div>
-                                    <p class="blog-entry-text">
-                                        We refactored the screen rendering engine! ASCII block headers and text layouts are now strictly aligned to the exact pixel center across all resolution modes.
-                                    </p>
+                                <!-- POST 1: MARKETING & PRODUCT LAUNCH -->
+                                <article class="blog-post">
+                                    <div class="blog-post-title">▶ THE ORIGIN: REBUILDING RETRO GAMING IN THE BROWSER</div>
+                                    <div class="blog-post-meta">
+                                        <span class="tag-badge">VISION</span>
+                                        <span>2026-06-15</span>
+                                    </div>
+                                    <div class="blog-post-content">
+                                        <p>
+                                            <span class="seo-term">Retro Console Pro</span> was born out of a single mission: to capture the tactile magic, monochrome LCD aesthetic, and instant gameplay of 1990s handheld consoles—without needing heavy emulators or native installs.
+                                        </p>
+                                        <p>
+                                            By combining modern HTML5 performance with authentic dot-matrix display shaders, we brought iconic 8-bit experiences back to life directly in your browser.
+                                        </p>
+                                    </div>
                                 </article>
 
-                                <!-- POST 2 -->
-                                <article class="blog-entry">
-                                    <div class="blog-entry-title">▶ HARDWARE CONTROLLER INTEGRATION</div>
-                                    <div class="blog-entry-date">2026-07-02 • <span class="highlight-tag">FEATURE</span></div>
-                                    <p class="blog-entry-text">
-                                        Added native keyboard navigation mapping WASD / Arrows to the D-Pad, Z to [A], X / ESC to [B], and Enter to Start for full desktop emulator feel.
-                                    </p>
+                                <!-- POST 2: SEO & RETRO GAMES INSIGHTS -->
+                                <article class="blog-post">
+                                    <div class="blog-post-title">▶ WHY RETRO GAMES REMAIN TIMELSS</div>
+                                    <div class="blog-post-meta">
+                                        <span class="tag-badge">INSIGHT</span>
+                                        <span>2026-06-28</span>
+                                    </div>
+                                    <div class="blog-post-content">
+                                        <p>
+                                            Modern high-budget games rely on photorealism, but classic <span class="seo-term">retro games</span> like Snake, Tetris, and Pixel Platformers succeeded because of pure mechanical design and tight control loops.
+                                        </p>
+                                        <p>Key pillars of our platform design:</p>
+                                        <ul>
+                                            <li>• Instant load times under 100ms</li>
+                                            <li>• Zero latency input processing</li>
+                                            <li>• High-contrast green matrix LCDs</li>
+                                        </ul>
+                                    </div>
                                 </article>
 
-                                <!-- POST 3 -->
-                                <article class="blog-entry">
-                                    <div class="blog-entry-title">▶ PROJECT ARCHITECTURE & VISION</div>
-                                    <div class="blog-entry-date">2026-06-25 • <span class="highlight-tag">LOG</span></div>
-                                    <p class="blog-entry-text">
-                                        Retro Console Pro is built to bring authentic 90s handheld nostalgia directly to the browser with zero external dependencies and high-contrast green LCD matrix optics.
-                                    </p>
+                                <!-- POST 3: SYSTEM UPDATE v1.4 -->
+                                <article class="blog-post">
+                                    <div class="blog-post-title">▶ SYSTEM UPDATE v1.4: LCD ALIGNMENT ENGINE</div>
+                                    <div class="blog-post-meta">
+                                        <span class="tag-badge">UPDATE</span>
+                                        <span>2026-07-11</span>
+                                    </div>
+                                    <div class="blog-post-content">
+                                        <p>
+                                            Firmware v1.4 introduces a complete refactor of our display renderer!
+                                        </p>
+                                        <p>
+                                            We resolved text offset issues across all viewports. ASCII headers and legal blocks now align to the mathematical center of the LCD screen without clipping.
+                                        </p>
+                                    </div>
+                                </article>
+
+                                <!-- POST 4: ROADMAP -->
+                                <article class="blog-post">
+                                    <div class="blog-post-title">▶ ROADMAP: WHAT IS COMING NEXT?</div>
+                                    <div class="blog-post-meta">
+                                        <span class="tag-badge">ROADMAP</span>
+                                        <span>2026-07-15</span>
+                                    </div>
+                                    <div class="blog-post-content">
+                                        <p>Our engineering team is actively working on:</p>
+                                        <ul>
+                                            <li>• WebAudio API 8-bit sound synth</li>
+                                            <li>• Custom ROM slot engine</li>
+                                            <li>• High-score local storage save states</li>
+                                        </ul>
+                                    </div>
                                 </article>
 
                             </div>
@@ -135,13 +224,13 @@
             </div>
         </div>
 
-        <!-- CHASSIS LOGO -->
+        <!-- CHASSIS BRANDING -->
         <div class="brand-logo-text">
             <span class="brand-main">RETRO</span>
             <span class="brand-sub">CONSOLE<sup> PRO</sup></span>
         </div>
 
-        <!-- CONTROLS -->
+        <!-- HARDWARE CONTROLS -->
         <div class="controls-container">
             <div class="dpad-wrapper">
                 <div class="dpad">
@@ -187,25 +276,26 @@
         </div>
     </div>
 
+    <!-- CONTROLLER ENGINE -->
     <script>
-        const scrollContainer = document.querySelector('.blog-scroll-area');
+        const scrollContainer = document.getElementById('blogScroll');
         const backToMain = () => { window.location.href = '../index.html'; };
 
-        // D-Pad / Button click scrolling & navigation
+        // D-Pad and Button Controls
         document.getElementById('btn-up').addEventListener('click', () => {
-            scrollContainer.scrollBy({ top: -40, behavior: 'smooth' });
+            scrollContainer.scrollBy({ top: -35, behavior: 'smooth' });
         });
         document.getElementById('btn-down').addEventListener('click', () => {
-            scrollContainer.scrollBy({ top: 40, behavior: 'smooth' });
+            scrollContainer.scrollBy({ top: 35, behavior: 'smooth' });
         });
         document.getElementById('btn-b').addEventListener('click', backToMain);
 
-        // Hardware keyboard keybindings
+        // Hardware Keyboard Bindings
         window.addEventListener('keydown', (e) => {
             if (['ArrowUp', 'w', 'W'].includes(e.key)) {
-                scrollContainer.scrollBy({ top: -30, behavior: 'smooth' });
+                scrollContainer.scrollBy({ top: -35, behavior: 'smooth' });
             } else if (['ArrowDown', 's', 'S'].includes(e.key)) {
-                scrollContainer.scrollBy({ top: 30, behavior: 'smooth' });
+                scrollContainer.scrollBy({ top: 35, behavior: 'smooth' });
             } else if (['x', 'X', 'Escape'].includes(e.key)) {
                 backToMain();
             }
