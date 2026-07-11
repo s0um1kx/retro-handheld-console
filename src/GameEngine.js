@@ -36,26 +36,28 @@ export class GameEngine {
         this.ctx.clearRect(0, 0, this.width, this.height);
     }
 
-    handleInput(action) {
-        if (this.state === 'CARD') {
-            if (action === 'A') {
-                this.audio.playSFX('select');
-                this.startGame();
-            } else if (action === 'B') {
-                this.audio.playSFX('back');
-                this.stop();
-                return 'EXIT';
-            }
-        } else if (this.state === 'PLAYING' && this.currentGameInstance) {
-            if (action === 'B' && this.currentGameInstance.isGameOver) {
-                this.stop();
-                return 'EXIT';
-            }
+handleInput(action) {
+    if (this.state === 'CARD') {
+        if (action === 'A') {
+            this.audio.playSFX('select');
+            this.startGame();
+        } else if (action === 'B') {
+            this.audio.playSFX('back');
+            this.stop();
+            return 'EXIT';
+        }
+    } else if (this.state === 'PLAYING' || this.state === 'GAME_OVER') {
+        if (action === 'B') {
+            this.audio.playSFX('back');
+            this.stop();
+            return 'EXIT';
+        }
+        if (this.currentGameInstance && typeof this.currentGameInstance.handleInput === 'function') {
             this.currentGameInstance.handleInput(action);
         }
-        return 'CONTINUE';
     }
-
+    return 'CONTINUE';
+}
     startLoop() {
         const loop = () => {
             this.update();
