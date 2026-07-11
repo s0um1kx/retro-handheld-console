@@ -1,0 +1,16 @@
+# Node modules 
+node_modules/
+package-lock.json
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Logs and build artifacts
+*.log
+dist/
+build/
+coverage/
