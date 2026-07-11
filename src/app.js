@@ -1,10 +1,29 @@
 import { AudioManager } from './core/AudioManager.js';
 import { PetController } from './core/PetController.js';
 import { StatusHeader } from './core/StatusHeader.js';
+import { GameEngine } from './GameEngine.js';
+
+import { GridStack } from './games/GridStack/GridStack.js';
+import { CosmicGrid } from './games/CosmicGrid/CosmicGrid.js';
+import { ByteEater } from './games/ByteEater/ByteEater.js';
+import { PocketJumper } from './games/PocketJumper/PocketJumper.js';
+import { MicroQuest } from './games/MicroQuest/MicroQuest.js';
 
 const audio = new AudioManager();
 const pet = new PetController();
 const status = new StatusHeader();
+
+// Setup Canvas for Games inside Viewport
+const viewport = document.querySelector('.game-viewport');
+const gameCanvas = document.createElement('canvas');
+gameCanvas.id = 'retro-game-canvas';
+gameCanvas.style.display = 'none';
+gameCanvas.style.width = '100%';
+gameCanvas.style.height = '100%';
+gameCanvas.style.imageRendering = 'pixelated';
+viewport.appendChild(gameCanvas);
+
+const gameEngine = new GameEngine(gameCanvas, audio);
 
 let currentView = 'main-menu'; 
 let currentSelectionIndex = 0; 
@@ -46,6 +65,14 @@ const backNavigationMap = {
     'privacy': 'legal',
     'terms': 'legal',
     'license': 'legal'
+};
+
+const gamesRegistry = {
+    0: { name: 'GridStack', cls: GridStack },
+    1: { name: 'Cosmic Grid', cls: CosmicGrid },
+    2: { name: 'Byte Eater', cls: ByteEater },
+    3: { name: 'Pocket Jumper', cls: PocketJumper },
+    4: { name: 'Micro Quest', cls: MicroQuest }
 };
 
 function renderAudioView() {
@@ -111,6 +138,7 @@ function updateLegalMenuVisuals() {
 
 function changeView(targetView) {
     currentView = targetView;
+    gameCanvas.style.display = 'none';
     
     if (targetView === 'games' || targetView === 'settings' || targetView === 'about') {
         currentSubSelectionIndex = 0;
@@ -147,10 +175,38 @@ function changeView(targetView) {
     pet.triggerReaction('nav', currentView);
 }
 
-// Controls
+function launchGame(index) {
+    const game = gamesRegistry[index];
+    if (!game) return;
+
+    Object.values(views).forEach(v => {
+        if (v) v.classList.remove('active-view');
+    });
+
+    gameCanvas.style.display = 'block';
+    currentView = 'game-active';
+
+    gameEngine.launchCard(game.name, game.cls);
+}
+
+function handleGameInput(action) {
+    const result = gameEngine.handleInput(action);
+    if (result === 'EXIT') {
+        gameEngine.stop();
+        changeView('games');
+    }
+}
+
+// Button Click Event Listeners
 document.getElementById('btn-up').addEventListener('click', () => {
-    audio.playSFX('nav');
     pet.triggerReaction('press', currentView);
+
+    if (currentView === 'game-active') {
+        handleGameInput('UP');
+        return;
+    }
+
+    audio.playSFX('nav');
     if (currentView === 'main-menu') {
         if (currentSelectionIndex > 0) {
             currentSelectionIndex--;
@@ -175,8 +231,14 @@ document.getElementById('btn-up').addEventListener('click', () => {
 });
 
 document.getElementById('btn-down').addEventListener('click', () => {
-    audio.playSFX('nav');
     pet.triggerReaction('press', currentView);
+
+    if (currentView === 'game-active') {
+        handleGameInput('DOWN');
+        return;
+    }
+
+    audio.playSFX('nav');
     if (currentView === 'main-menu') {
         const items = views[currentView].querySelectorAll('.menu-item');
         if (currentSelectionIndex < items.length - 1) {
@@ -205,6 +267,12 @@ document.getElementById('btn-down').addEventListener('click', () => {
 
 document.getElementById('btn-left').addEventListener('click', () => {
     pet.triggerReaction('press', currentView);
+
+    if (currentView === 'game-active') {
+        handleGameInput('LEFT');
+        return;
+    }
+
     if (currentView === 'audio') {
         audio.playSFX('nav');
         if (currentAudioIndex === 0) {
@@ -222,6 +290,12 @@ document.getElementById('btn-left').addEventListener('click', () => {
 
 document.getElementById('btn-right').addEventListener('click', () => {
     pet.triggerReaction('press', currentView);
+
+    if (currentView === 'game-active') {
+        handleGameInput('RIGHT');
+        return;
+    }
+
     if (currentView === 'audio') {
         audio.playSFX('nav');
         if (currentAudioIndex === 0) {
@@ -238,8 +312,14 @@ document.getElementById('btn-right').addEventListener('click', () => {
 });
 
 document.getElementById('btn-a').addEventListener('click', () => {
-    audio.playSFX('select');
     pet.triggerReaction('press', currentView);
+
+    if (currentView === 'game-active') {
+        handleGameInput('A');
+        return;
+    }
+
+    audio.playSFX('select');
     if (currentView === 'main-menu') {
         switch(currentSelectionIndex) {
             case 0: changeView('games'); break;
@@ -248,6 +328,8 @@ document.getElementById('btn-a').addEventListener('click', () => {
             case 3: changeView('contact'); break;
             case 4: changeView('about'); break;
         }
+    } else if (currentView === 'games') {
+        launchGame(currentSubSelectionIndex);
     } else if (currentView === 'settings') {
         if (currentSubSelectionIndex === 0) changeView('audio');
         else if (currentSubSelectionIndex === 1) changeView('controls');
@@ -263,8 +345,14 @@ document.getElementById('btn-a').addEventListener('click', () => {
 });
 
 document.getElementById('btn-b').addEventListener('click', () => {
-    audio.playSFX('back');
     pet.triggerReaction('press', currentView);
+
+    if (currentView === 'game-active') {
+        handleGameInput('B');
+        return;
+    }
+
+    audio.playSFX('back');
     const fallbackView = backNavigationMap[currentView];
     if (fallbackView) {
         changeView(fallbackView);
