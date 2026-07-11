@@ -35,15 +35,10 @@ export const PRE_GAME_CARDS = {
     },
     'Pocket Jumper': {
         title: 'POCKET JUMPER',
-        goal: ['Goal: Dodge traps and reach', 'the flag at the end.'],
-        controls: [
-            { key: '[D-Pad L/R]', action: 'Run' },
-            { key: '[A Button]', action: 'Jump' },
-            { key: '[A] (In Air)', action: 'Double Jump' },
-            { key: '[B Button]', action: 'Sprint' }
-        ],
-        tip: null,
-        comingSoon: false
+        goal: ['Under Construction!'],
+        controls: [],
+        tip: 'Check back in a future update!',
+        comingSoon: true
     },
     'Micro Quest': {
         title: 'MICRO QUEST',
