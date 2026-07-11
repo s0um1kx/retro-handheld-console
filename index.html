@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retro Console Pro</title>
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
 
@@ -15,9 +15,19 @@
             <div class="bezel-middle-row">
                 <div class="screen">
                     <div class="screen-matrix-overlay"></div>
+                    
+                    <!-- REACTIVE PET + REAL HARDWARE STATUS BAR -->
                     <div class="screen-status-bar">
-                        <span>.▲▮▮- 12:37 99%</span>
-                        <span>[▮▮▮▮]</span>
+                        <div class="status-left">
+                            <span id="pet-avatar" class="pet-face">( •_•)</span>
+                            <span id="pet-state" class="pet-label">IDLE</span>
+                        </div>
+                        <div class="status-center">
+                            <span id="live-clock">12:37 PM</span>
+                        </div>
+                        <div class="status-right">
+                            <span id="live-battery">[████] 100%</span>
+                        </div>
                     </div>
                     
                     <div class="game-viewport">

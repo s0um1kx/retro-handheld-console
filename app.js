@@ -49,7 +49,102 @@ const backNavigationMap = {
 };
 
 // ==========================================================================
-// 2. Audio Engine
+// 2. Dynamic Retro Status Bar Engine (Clock, Hardware Battery, Pet Controller)
+// ==========================================================================
+const petAvatar = document.getElementById('pet-avatar');
+const petState = document.getElementById('pet-state');
+const liveClock = document.getElementById('live-clock');
+const liveBattery = document.getElementById('live-battery');
+
+let reactionTimeout = null;
+
+// Dynamic Clock Sync with Blinking Colon
+function updateClock() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+
+    const colon = now.getSeconds() % 2 === 0 ? ':' : ' ';
+    
+    if (liveClock) {
+        liveClock.textContent = `${hours}${colon}${minutes} ${ampm}`;
+    }
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Real Hardware Battery Hook
+function renderBattery(level, isCharging) {
+    const totalBlocks = 4;
+    const filledBlocks = Math.round(level * totalBlocks);
+    const emptyBlocks = totalBlocks - filledBlocks;
+    const bar = '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
+    const chargeSymbol = isCharging ? '🗲' : '';
+    const percentage = Math.round(level * 100);
+
+    if (liveBattery) {
+        liveBattery.textContent = `[${chargeSymbol}${bar}] ${percentage}%`;
+    }
+}
+
+if ('getBattery' in navigator) {
+    navigator.getBattery().then(battery => {
+        const updateBatteryInfo = () => renderBattery(battery.level, battery.charging);
+        updateBatteryInfo();
+        battery.addEventListener('levelchange', updateBatteryInfo);
+        battery.addEventListener('chargingchange', updateBatteryInfo);
+    });
+} else {
+    renderBattery(1.0, false);
+}
+
+// Reactive Pet Controller
+const petStates = {
+    idle: { face: '( •_•)', label: 'IDLE' },
+    blink: { face: '( -_•)', label: 'IDLE' },
+    nav: { face: '( ⊙_⊙)', label: 'NAV' },
+    happy: { face: '( ^_^ )!', label: 'YAY!' },
+    game: { face: '(⌐■_■)', label: 'PLAY' }
+};
+
+function triggerPetReaction(actionType) {
+    if (reactionTimeout) clearTimeout(reactionTimeout);
+
+    if (actionType === 'press') {
+        petAvatar.textContent = petStates.happy.face;
+        petState.textContent = petStates.happy.label;
+    } else if (actionType === 'nav') {
+        petAvatar.textContent = petStates.nav.face;
+        petState.textContent = petStates.nav.label;
+    }
+
+    reactionTimeout = setTimeout(() => {
+        if (currentView === 'games') {
+            petAvatar.textContent = petStates.game.face;
+            petState.textContent = petStates.game.label;
+        } else {
+            petAvatar.textContent = petStates.idle.face;
+            petState.textContent = petStates.idle.label;
+        }
+    }, 800);
+}
+
+// Periodic Blink
+setInterval(() => {
+    if (petAvatar.textContent === petStates.idle.face) {
+        petAvatar.textContent = petStates.blink.face;
+        setTimeout(() => {
+            if (petAvatar.textContent === petStates.blink.face) {
+                petAvatar.textContent = petStates.idle.face;
+            }
+        }, 300);
+    }
+}, 4000);
+
+// ==========================================================================
+// 3. Audio Synthesizer Engine
 // ==========================================================================
 let audioCtx = null;
 let bgmGainNode = null;
@@ -167,7 +262,7 @@ function renderAudioView() {
 }
 
 // ==========================================================================
-// 3. Render Views & Selection Highlights
+// 4. Render Views & Selection Highlights
 // ==========================================================================
 function updateMenuVisuals(viewKey) {
     const menuItems = views[viewKey].querySelectorAll('.menu-item');
@@ -242,13 +337,16 @@ function changeView(targetView) {
     } else if (targetView === 'legal') {
         updateLegalMenuVisuals();
     }
+
+    triggerPetReaction('nav');
 }
 
 // ==========================================================================
-// 4. Input Listeners
+// 5. Input Listeners
 // ==========================================================================
 document.getElementById('btn-up').addEventListener('click', () => {
     playSFX('nav');
+    triggerPetReaction('press');
     if (currentView === 'main-menu') {
         if (currentSelectionIndex > 0) {
             currentSelectionIndex--;
@@ -274,6 +372,7 @@ document.getElementById('btn-up').addEventListener('click', () => {
 
 document.getElementById('btn-down').addEventListener('click', () => {
     playSFX('nav');
+    triggerPetReaction('press');
     if (currentView === 'main-menu') {
         const items = views[currentView].querySelectorAll('.menu-item');
         if (currentSelectionIndex < items.length - 1) {
@@ -301,6 +400,7 @@ document.getElementById('btn-down').addEventListener('click', () => {
 });
 
 document.getElementById('btn-left').addEventListener('click', () => {
+    triggerPetReaction('press');
     if (currentView === 'audio') {
         playSFX('nav');
         if (currentAudioIndex === 0) {
@@ -317,6 +417,7 @@ document.getElementById('btn-left').addEventListener('click', () => {
 });
 
 document.getElementById('btn-right').addEventListener('click', () => {
+    triggerPetReaction('press');
     if (currentView === 'audio') {
         playSFX('nav');
         if (currentAudioIndex === 0) {
@@ -334,6 +435,7 @@ document.getElementById('btn-right').addEventListener('click', () => {
 
 document.getElementById('btn-a').addEventListener('click', () => {
     playSFX('select');
+    triggerPetReaction('press');
     if (currentView === 'main-menu') {
         switch(currentSelectionIndex) {
             case 0: changeView('games'); break;
@@ -358,6 +460,7 @@ document.getElementById('btn-a').addEventListener('click', () => {
 
 document.getElementById('btn-b').addEventListener('click', () => {
     playSFX('back');
+    triggerPetReaction('press');
     const fallbackView = backNavigationMap[currentView];
     if (fallbackView) {
         changeView(fallbackView);

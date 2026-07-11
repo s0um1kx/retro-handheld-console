@@ -89,17 +89,40 @@ body {
     z-index: 2;
 }
 
-/* HEADER & FOOTER SEPARATOR LINES */
+/* HEADER STATUS BAR */
 .screen-status-bar {
     display: flex;
     justify-content: space-between;
-    font-size: 11px;
+    align-items: center;
+    font-size: 10px;
     font-weight: bold;
     color: #1a2405;
-    padding: 4px 8px;
+    padding: 3px 6px;
     border-bottom: 1px solid #1a2405;
     background-color: transparent;
     z-index: 3;
+    font-family: "Courier New", Courier, monospace;
+}
+
+.status-left, .status-right, .status-center {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pet-face {
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+.pet-label {
+    font-size: 8px;
+    opacity: 0.85;
+    text-transform: uppercase;
+}
+
+#live-clock {
+    letter-spacing: 0.5px;
 }
 
 .screen-footer-bar {
@@ -425,18 +448,7 @@ body {
         1px 1px 0px rgba(255,255,255,0.6);
 }
 
-/* ==========================================================================
-   7. Micro-Animations
-   ========================================================================== */
-.dpad-btn:active, .dpad-btn.keyboard-active { 
-    background-color: #17181c;
-}
-.action-btn:active, .action-btn.keyboard-active {
-    transform: scale(0.96);
-    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
-}
-.pill-btn:active, .pill-btn.keyboard-active {
-    background-color: #555c61;
-    transform: translateY(1px);
-    box-shadow: inset -1px -1px 1px rgba(0,0,0,0.6);
-}
+/* Micro-Animations */
+.dpad-btn:active, .dpad-btn.keyboard-active { background-color: #17181c; }
+.action-btn:active, .action-btn.keyboard-active { transform: scale(0.96); box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6); }
+.pill-btn:active, .pill-btn.keyboard-active { background-color: #555c61; transform: translateY(1px); box-shadow: inset -1px -1px 1px rgba(0,0,0,0.6); }
