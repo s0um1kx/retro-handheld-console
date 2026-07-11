@@ -1,63 +1,55 @@
 export const PRE_GAME_CARDS = {
     'GridStack': {
         title: 'GRIDSTACK',
-        subtitle: 'Tetris Style',
-        controls: '[D-Pad] Move/Rotate | [A] Fast Drop | [B] Back',
-        goal: 'Clear lines to score high!',
-        icon: [
-            "  ████  ",
-            "  █  █  ",
-            "████████",
-            "████████"
-        ]
+        goal: ['Goal: Fill lines to clear them', 'and prevent overflow.'],
+        controls: [
+            { key: '[D-Pad L/R]', action: 'Move' },
+            { key: '[D-Pad Up]', action: 'Rotate' },
+            { key: '[D-Pad Down]', action: 'Soft Drop' },
+            { key: '[A Button]', action: 'Hard Drop' },
+            { key: '[B Button]', action: 'Hold' }
+        ],
+        tip: null
     },
     'Cosmic Grid': {
         title: 'COSMIC GRID',
-        subtitle: 'Space Invaders',
-        controls: '[D-Pad L/R] Move | [A] Fire Laser | [B] Back',
-        goal: 'Destroy invaders before invasion!',
-        icon: [
-            "   ██   ",
-            "  ████  ",
-            "████████",
-            "█ █  █ █"
-        ]
+        goal: ['Goal: Destroy alien waves', 'before they invade.'],
+        controls: [
+            { key: '[D-Pad L/R]', action: 'Move Ship' },
+            { key: '[A Button]', action: 'Fire Laser' },
+            { key: '[B Button]', action: 'Deploy Shield' }
+        ],
+        tip: 'TIP: Shoot UFOs for bonus points!'
     },
     'Byte Eater': {
         title: 'BYTE EATER',
-        subtitle: 'Snake',
-        controls: '[D-Pad] Change Direction | [B] Back',
-        goal: 'Eat bytes and grow longer!',
-        icon: [
-            " █████  ",
-            " █   █  ",
-            " █████  ",
-            "     ███"
-        ]
+        goal: ['Goal: Eat data bugs & grow', 'without hitting walls.'],
+        controls: [
+            { key: '[D-Pad]', action: 'Change Dir' },
+            { key: '[A Button]', action: 'Boost Speed' }
+        ],
+        tip: 'TIP: Avoid biting your own tail!'
     },
     'Pocket Jumper': {
         title: 'POCKET JUMPER',
-        subtitle: 'Platformer',
-        controls: '[D-Pad L/R] Move | [A] Jump | [B] Back',
-        goal: 'Reach the flag on each stage!',
-        icon: [
-            "   ██   ",
-            "  ████  ",
-            "   ██   ",
-            "  █  █  "
-        ]
+        goal: ['Goal: Dodge traps and reach', 'the flag at the end.'],
+        controls: [
+            { key: '[D-Pad L/R]', action: 'Run' },
+            { key: '[A Button]', action: 'Jump' },
+            { key: '[A] (In Air)', action: 'Double Jump' },
+            { key: '[B Button]', action: 'Sprint' }
+        ],
+        tip: null
     },
     'Micro Quest': {
         title: 'MICRO QUEST',
-        subtitle: 'RPG',
-        controls: '[D-Pad] Move | [A] Interact/Attack | [B] Back',
-        goal: 'Defeat monsters and find exit!',
-        icon: [
-            "   ██   ",
-            "   ██   ",
-            "  ████  ",
-            "   ██   "
-        ]
+        goal: ['Goal: Defeat the dungeon boss', 'and collect key loot.'],
+        controls: [
+            { key: '[D-Pad]', action: 'Move / Cursor' },
+            { key: '[A Button]', action: 'Select / Attack' },
+            { key: '[B Button]', action: 'Cancel / Items' }
+        ],
+        tip: 'TIP: Save potions for bosses!'
     }
 };
 
@@ -66,37 +58,69 @@ export class PreGameCardRenderer {
         const config = PRE_GAME_CARDS[gameKey];
         if (!config) return;
 
-        ctx.fillStyle = '#8b9d2e';
+        const LCD_BG = '#8b9d2e';
+        const LCD_TEXT = '#1a2405';
+
+        // Background
+        ctx.fillStyle = LCD_BG;
         ctx.fillRect(0, 0, width, height);
 
-        ctx.fillStyle = '#1a2405';
-        ctx.font = 'bold 12px "Courier New", monospace';
+        // Canvas Border Frame
+        ctx.strokeStyle = LCD_TEXT;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(3, 3, width - 6, height - 6);
+
+        ctx.fillStyle = LCD_TEXT;
         ctx.textAlign = 'center';
 
-        // Title & Subtitle
-        ctx.fillText(`=== ${config.title} ===`, width / 2, 22);
-        ctx.font = '10px "Courier New", monospace';
-        ctx.fillText(`(${config.subtitle})`, width / 2, 36);
+        // Header Title Box
+        ctx.strokeRect(7, 7, width - 14, 20);
+        ctx.font = 'bold 11px monospace';
+        ctx.fillText(`[ ${config.title} ]`, width / 2, 21);
 
-        // Icon ASCII/Pixel Representation
-        ctx.font = '10px monospace';
-        config.icon.forEach((line, index) => {
-            ctx.fillText(line, width / 2, 58 + (index * 11));
+        // Inner Content Box
+        ctx.strokeRect(7, 30, width - 14, height - 37);
+
+        let currentY = 43;
+
+        // Goal Section
+        ctx.font = '8px monospace';
+        config.goal.forEach(line => {
+            ctx.fillText(line, width / 2, currentY);
+            currentY += 10;
         });
 
-        // Goal Box
-        ctx.font = '9px "Courier New", monospace';
-        ctx.fillText(`Goal: ${config.goal}`, width / 2, 115);
+        currentY += 3;
 
-        // Controls
-        ctx.font = '8px "Courier New", monospace';
-        ctx.fillText(config.controls, width / 2, 135);
+        // Controls Header
+        ctx.font = 'bold 8px monospace';
+        ctx.fillText('CONTROLS:', width / 2, currentY);
+        currentY += 10;
 
-        // Prompt
-        ctx.font = 'bold 10px "Courier New", monospace';
+        // Controls List Alignment
+        ctx.font = '7px monospace';
+        config.controls.forEach(ctrl => {
+            ctx.textAlign = 'left';
+            ctx.fillText(`* ${ctrl.key}`, 14, currentY);
+            ctx.textAlign = 'right';
+            ctx.fillText(ctrl.action, width - 14, currentY);
+            currentY += 9;
+        });
+
+        // Optional Tip Line
+        if (config.tip) {
+            currentY += 2;
+            ctx.textAlign = 'center';
+            ctx.font = 'italic 7px monospace';
+            ctx.fillText(config.tip, width / 2, currentY);
+        }
+
+        // Animated Blink Prompt at Bottom
         const blink = Math.floor(Date.now() / 500) % 2 === 0;
         if (blink) {
-            ctx.fillText('[ PRESS A TO START ]', width / 2, 160);
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 8px monospace';
+            ctx.fillText('[A] START GAME', width / 2, height - 12);
         }
     }
 }
