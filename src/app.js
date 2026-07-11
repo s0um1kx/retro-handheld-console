@@ -1,16 +1,16 @@
-// ==========================================================================
-// 1. App State Controller & Navigation Architecture
-// ==========================================================================
+import { AudioManager } from './core/AudioManager.js';
+import { PetController } from './core/PetController.js';
+import { StatusHeader } from './core/StatusHeader.js';
+
+const audio = new AudioManager();
+const pet = new PetController();
+const status = new StatusHeader();
+
 let currentView = 'main-menu'; 
 let currentSelectionIndex = 0; 
 let currentSubSelectionIndex = 0;
 let currentLegalSelectionIndex = 0;
-
-// Audio Configuration State
 let currentAudioIndex = 0;
-let isMusicOn = true;
-let isSFXOn = true;
-let masterVolume = 60;
 
 const views = {
     'main-menu': document.getElementById('view-main-menu'),
@@ -48,203 +48,12 @@ const backNavigationMap = {
     'license': 'legal'
 };
 
-// ==========================================================================
-// 2. Dynamic Retro Status Bar Engine (Clock, Hardware Battery, Pet Controller)
-// ==========================================================================
-const petAvatar = document.getElementById('pet-avatar');
-const petState = document.getElementById('pet-state');
-const liveClock = document.getElementById('live-clock');
-const liveBattery = document.getElementById('live-battery');
-
-let reactionTimeout = null;
-
-// Dynamic Clock Sync with Blinking Colon
-function updateClock() {
-    const now = new Date();
-    let hours = now.getHours();
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12;
-
-    const colon = now.getSeconds() % 2 === 0 ? ':' : ' ';
-    
-    if (liveClock) {
-        liveClock.textContent = `${hours}${colon}${minutes} ${ampm}`;
-    }
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-// Real Hardware Battery Hook
-function renderBattery(level, isCharging) {
-    const totalBlocks = 4;
-    const filledBlocks = Math.round(level * totalBlocks);
-    const emptyBlocks = totalBlocks - filledBlocks;
-    const bar = '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
-    const chargeSymbol = isCharging ? '🗲' : '';
-    const percentage = Math.round(level * 100);
-
-    if (liveBattery) {
-        liveBattery.textContent = `[${chargeSymbol}${bar}] ${percentage}%`;
-    }
-}
-
-if ('getBattery' in navigator) {
-    navigator.getBattery().then(battery => {
-        const updateBatteryInfo = () => renderBattery(battery.level, battery.charging);
-        updateBatteryInfo();
-        battery.addEventListener('levelchange', updateBatteryInfo);
-        battery.addEventListener('chargingchange', updateBatteryInfo);
-    });
-} else {
-    renderBattery(1.0, false);
-}
-
-// Reactive Pet Controller
-const petStates = {
-    idle: { face: '( •_•)', label: 'IDLE' },
-    blink: { face: '( -_•)', label: 'IDLE' },
-    nav: { face: '( ⊙_⊙)', label: 'NAV' },
-    happy: { face: '( ^_^ )!', label: 'YAY!' },
-    game: { face: '(⌐■_■)', label: 'PLAY' }
-};
-
-function triggerPetReaction(actionType) {
-    if (reactionTimeout) clearTimeout(reactionTimeout);
-
-    if (actionType === 'press') {
-        petAvatar.textContent = petStates.happy.face;
-        petState.textContent = petStates.happy.label;
-    } else if (actionType === 'nav') {
-        petAvatar.textContent = petStates.nav.face;
-        petState.textContent = petStates.nav.label;
-    }
-
-    reactionTimeout = setTimeout(() => {
-        if (currentView === 'games') {
-            petAvatar.textContent = petStates.game.face;
-            petState.textContent = petStates.game.label;
-        } else {
-            petAvatar.textContent = petStates.idle.face;
-            petState.textContent = petStates.idle.label;
-        }
-    }, 800);
-}
-
-// Periodic Blink
-setInterval(() => {
-    if (petAvatar.textContent === petStates.idle.face) {
-        petAvatar.textContent = petStates.blink.face;
-        setTimeout(() => {
-            if (petAvatar.textContent === petStates.blink.face) {
-                petAvatar.textContent = petStates.idle.face;
-            }
-        }, 300);
-    }
-}, 4000);
-
-// ==========================================================================
-// 3. Audio Synthesizer Engine
-// ==========================================================================
-let audioCtx = null;
-let bgmGainNode = null;
-let bgmInterval = null;
-
-function initAudioContext() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-}
-
-function playSFX(type) {
-    if (!isSFXOn) return;
-    initAudioContext();
-
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    const effectiveVol = (masterVolume / 100) * 0.15;
-
-    osc.type = 'square';
-    gain.gain.setValueAtTime(effectiveVol, audioCtx.currentTime);
-
-    if (type === 'nav') {
-        osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(160, audioCtx.currentTime + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.05);
-    } else if (type === 'select') {
-        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
-    } else if (type === 'back') {
-        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(260, audioCtx.currentTime + 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
-    }
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-}
-
-function startBGM() {
-    if (!isMusicOn) return;
-    initAudioContext();
-    stopBGM();
-
-    const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
-    let noteIdx = 0;
-
-    bgmGainNode = audioCtx.createGain();
-    bgmGainNode.gain.setValueAtTime((masterVolume / 100) * 0.05, audioCtx.currentTime);
-    bgmGainNode.connect(audioCtx.destination);
-
-    bgmInterval = setInterval(() => {
-        if (!isMusicOn) return;
-        const osc = audioCtx.createOscillator();
-        const noteGain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = notes[noteIdx];
-
-        noteGain.gain.setValueAtTime((masterVolume / 100) * 0.04, audioCtx.currentTime);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
-
-        osc.connect(noteGain);
-        noteGain.connect(bgmGainNode);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.18);
-
-        noteIdx = (noteIdx + 1) % notes.length;
-    }, 200);
-}
-
-function stopBGM() {
-    if (bgmInterval) {
-        clearInterval(bgmInterval);
-        bgmInterval = null;
-    }
-}
-
-function updateBGMVolume() {
-    if (bgmGainNode && audioCtx) {
-        bgmGainNode.gain.setValueAtTime((masterVolume / 100) * 0.05, audioCtx.currentTime);
-    }
-}
-
 function renderAudioView() {
-    const musicCheck = isMusicOn ? '[■] ON   [ ] OFF' : '[ ] ON   [■] OFF';
-    const sfxCheck = isSFXOn ? '[■] ON   [ ] OFF' : '[ ] ON   [■] OFF';
+    const musicCheck = audio.isMusicOn ? '[■] ON   [ ] OFF' : '[ ] ON   [■] OFF';
+    const sfxCheck = audio.isSFXOn ? '[■] ON   [ ] OFF' : '[ ] ON   [■] OFF';
 
     const totalBlocks = 10;
-    const filledBlocks = Math.round((masterVolume / 100) * totalBlocks);
+    const filledBlocks = Math.round((audio.masterVolume / 100) * totalBlocks);
     const barStr = '█'.repeat(filledBlocks) + '░'.repeat(totalBlocks - filledBlocks);
 
     const prefix0 = currentAudioIndex === 0 ? '> ' : '  ';
@@ -253,7 +62,7 @@ function renderAudioView() {
 
     const line0 = `${prefix0}Music (BGM) : ${musicCheck}`;
     const line1 = `${prefix1}Sound (SFX) : ${sfxCheck}`;
-    const line2 = `${prefix2}Master Vol  : ${barStr} (${masterVolume}%)`;
+    const line2 = `${prefix2}Master Vol  : ${barStr} (${audio.masterVolume}%)`;
 
     const block = document.querySelector('.audio-config-block');
     if (block) {
@@ -261,9 +70,6 @@ function renderAudioView() {
     }
 }
 
-// ==========================================================================
-// 4. Render Views & Selection Highlights
-// ==========================================================================
 function updateMenuVisuals(viewKey) {
     const menuItems = views[viewKey].querySelectorAll('.menu-item');
     menuItems.forEach((node, i) => {
@@ -338,15 +144,13 @@ function changeView(targetView) {
         updateLegalMenuVisuals();
     }
 
-    triggerPetReaction('nav');
+    pet.triggerReaction('nav', currentView);
 }
 
-// ==========================================================================
-// 5. Input Listeners
-// ==========================================================================
+// Controls
 document.getElementById('btn-up').addEventListener('click', () => {
-    playSFX('nav');
-    triggerPetReaction('press');
+    audio.playSFX('nav');
+    pet.triggerReaction('press', currentView);
     if (currentView === 'main-menu') {
         if (currentSelectionIndex > 0) {
             currentSelectionIndex--;
@@ -371,8 +175,8 @@ document.getElementById('btn-up').addEventListener('click', () => {
 });
 
 document.getElementById('btn-down').addEventListener('click', () => {
-    playSFX('nav');
-    triggerPetReaction('press');
+    audio.playSFX('nav');
+    pet.triggerReaction('press', currentView);
     if (currentView === 'main-menu') {
         const items = views[currentView].querySelectorAll('.menu-item');
         if (currentSelectionIndex < items.length - 1) {
@@ -400,42 +204,42 @@ document.getElementById('btn-down').addEventListener('click', () => {
 });
 
 document.getElementById('btn-left').addEventListener('click', () => {
-    triggerPetReaction('press');
+    pet.triggerReaction('press', currentView);
     if (currentView === 'audio') {
-        playSFX('nav');
+        audio.playSFX('nav');
         if (currentAudioIndex === 0) {
-            isMusicOn = !isMusicOn;
-            isMusicOn ? startBGM() : stopBGM();
+            audio.isMusicOn = !audio.isMusicOn;
+            audio.isMusicOn ? audio.startBGM() : audio.stopBGM();
         } else if (currentAudioIndex === 1) {
-            isSFXOn = !isSFXOn;
+            audio.isSFXOn = !audio.isSFXOn;
         } else if (currentAudioIndex === 2) {
-            if (masterVolume >= 10) masterVolume -= 10;
-            updateBGMVolume();
+            if (audio.masterVolume >= 10) audio.masterVolume -= 10;
+            audio.updateBGMVolume();
         }
         renderAudioView();
     }
 });
 
 document.getElementById('btn-right').addEventListener('click', () => {
-    triggerPetReaction('press');
+    pet.triggerReaction('press', currentView);
     if (currentView === 'audio') {
-        playSFX('nav');
+        audio.playSFX('nav');
         if (currentAudioIndex === 0) {
-            isMusicOn = !isMusicOn;
-            isMusicOn ? startBGM() : stopBGM();
+            audio.isMusicOn = !audio.isMusicOn;
+            audio.isMusicOn ? audio.startBGM() : audio.stopBGM();
         } else if (currentAudioIndex === 1) {
-            isSFXOn = !isSFXOn;
+            audio.isSFXOn = !audio.isSFXOn;
         } else if (currentAudioIndex === 2) {
-            if (masterVolume <= 90) masterVolume += 10;
-            updateBGMVolume();
+            if (audio.masterVolume <= 90) audio.masterVolume += 10;
+            audio.updateBGMVolume();
         }
         renderAudioView();
     }
 });
 
 document.getElementById('btn-a').addEventListener('click', () => {
-    playSFX('select');
-    triggerPetReaction('press');
+    audio.playSFX('select');
+    pet.triggerReaction('press', currentView);
     if (currentView === 'main-menu') {
         switch(currentSelectionIndex) {
             case 0: changeView('games'); break;
@@ -459,8 +263,8 @@ document.getElementById('btn-a').addEventListener('click', () => {
 });
 
 document.getElementById('btn-b').addEventListener('click', () => {
-    playSFX('back');
-    triggerPetReaction('press');
+    audio.playSFX('back');
+    pet.triggerReaction('press', currentView);
     const fallbackView = backNavigationMap[currentView];
     if (fallbackView) {
         changeView(fallbackView);
