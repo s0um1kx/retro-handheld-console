@@ -40,7 +40,7 @@ body {
 }
 
 /* ==========================================================================
-   3. Clean Symmetrical Bezel & LCD Graphics Layout
+   3. Screen & Bezel Layout
    ========================================================================== */
 .screen-container {
     background-color: #9aa2a8; 
@@ -68,7 +68,7 @@ body {
     background-color: #8b9d2e; 
     flex-grow: 1;
     border-radius: 6px;
-    padding: 6px 14px;
+    padding: 0;
     display: flex;
     flex-direction: column;
     box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.4);
@@ -86,22 +86,43 @@ body {
         transparent 2px
     );
     pointer-events: none;
+    z-index: 2;
 }
 
-.screen-status-bar, .screen-footer-bar {
+/* HEADER & FOOTER SEPARATOR LINES */
+.screen-status-bar {
     display: flex;
     justify-content: space-between;
     font-size: 11px;
     font-weight: bold;
     color: #1a2405;
+    padding: 4px 8px;
+    border-bottom: 1px solid #1a2405;
+    background-color: transparent;
+    z-index: 3;
+}
+
+.screen-footer-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: bold;
+    color: #1a2405;
+    padding: 4px 8px;
+    border-top: 1px solid #1a2405;
+    background-color: transparent;
+    margin-top: auto;
+    z-index: 3;
 }
 
 .game-viewport {
     flex-grow: 1;
-    display: block; 
+    display: flex; 
     width: 100%;
     height: 100%;
-    padding-top: 4px;
+    padding: 0;
+    overflow: hidden;
+    z-index: 3;
 }
 
 .screen-view {
@@ -109,7 +130,7 @@ body {
     width: 100%;
     height: 100%;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .screen-view.active-view {
@@ -118,45 +139,46 @@ body {
 
 .retro-menu {
     list-style: none;
-    padding-left: 10px;
+    padding: 0;
+    margin: 0;
+    width: 100%;
 }
 
 .menu-item, .submenu-item, .legal-item {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     color: #1a2405;
-    line-height: 1.4;
+    line-height: 1.5;
     letter-spacing: 0.5px;
-    width: fit-content;
+    width: 100%;
+    padding: 2px 10px;
+    display: block;
+    white-space: nowrap;
 }
 
 .menu-item.active, .submenu-item.active, .legal-item.active {
     background-color: #1a2405;
     color: #8b9d2e;
-    padding-right: 6px;
 }
 
 .view-title {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     color: #1a2405;
     border-bottom: 1px dashed #1a2405;
-    padding-bottom: 1px;
-    margin-bottom: 6px;
+    padding: 4px 10px;
     letter-spacing: 0.5px;
-    padding-left: 10px;
 }
 
 .info-content-block {
-    padding-left: 10px;
+    padding: 8px 10px;
 }
 
-/* FIXED RETRO CENTER ALIGNMENT ENGINE */
 .legal-retro-block {
     margin: 0;
-    padding: 0;
+    padding: 4px;
     font-family: "Courier New", Courier, monospace !important;
-    font-size: 11px;
+    font-size: 10px;
     line-height: 1.25;
     color: #1a2405;
     font-weight: bold;
@@ -170,17 +192,11 @@ body {
     white-space: pre;
 }
 
-.audio-config-block {
-    font-size: 11px;
-    line-height: 1.35;
-}
-
-/* HIGHLIGHTED TARGET ELEMENT FOR READABILITY */
 .highlighted-email {
     font-weight: 900;
-    color: #000000;              /* Pure contrast black */
+    color: #000000;
     letter-spacing: 0.1px;
-    border-bottom: 1px solid #1a2405; /* Clean baseline accent line */
+    border-bottom: 1px solid #1a2405;
     padding-bottom: 1px;
     display: inline-block;
 }
@@ -306,7 +322,7 @@ body {
 .dpad-btn.right::after { border-left-color: #ffffff; right: 6px; top: 11.5px; }
 
 /* ==========================================================================
-   5. Action Buttons Module
+   5. Action Buttons (Clean Chassis Labeling)
    ========================================================================== */
 .action-buttons-zone {
     position: relative;
@@ -332,10 +348,6 @@ body {
     border-radius: 50%;
     border: none;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 16px;
-    font-weight: 900;
-    font-family: sans-serif;
     box-shadow: 
         inset -2px -2px 4px rgba(0,0,0,0.4),
         inset 1px 1px 2px rgba(255,255,255,0.2),
@@ -352,7 +364,7 @@ body {
 }
 
 /* ==========================================================================
-   6. System Controls & Lower Speaker Slots
+   6. System Controls & Speaker Grille
    ========================================================================== */
 .menu-buttons-deck {
     display: flex;
@@ -414,7 +426,7 @@ body {
 }
 
 /* ==========================================================================
-   7. Micro-Animations & Audio Visual Enhancements
+   7. Micro-Animations
    ========================================================================== */
 .dpad-btn:active, .dpad-btn.keyboard-active { 
     background-color: #17181c;
@@ -427,13 +439,4 @@ body {
     background-color: #555c61;
     transform: translateY(1px);
     box-shadow: inset -1px -1px 1px rgba(0,0,0,0.6);
-}
-
-.audio-config-block {
-    animation: pulseGlow 3s infinite ease-in-out;
-}
-
-@keyframes pulseGlow {
-    0%, 100% { opacity: 0.95; }
-    50% { opacity: 1.0; }
 }

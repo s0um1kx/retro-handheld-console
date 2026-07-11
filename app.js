@@ -1,5 +1,5 @@
 // ==========================================================================
-// 1. App State Controller & Tree Hierarchy Config
+// 1. App State Controller & Navigation Architecture
 // ==========================================================================
 let currentView = 'main-menu'; 
 let currentSelectionIndex = 0; 
@@ -7,10 +7,10 @@ let currentSubSelectionIndex = 0;
 let currentLegalSelectionIndex = 0;
 
 // Audio Configuration State
-let currentAudioIndex = 0; // 0: Music, 1: Sound, 2: Master Vol
+let currentAudioIndex = 0;
 let isMusicOn = true;
 let isSFXOn = true;
-let masterVolume = 60; // 0 to 100%
+let masterVolume = 60;
 
 const views = {
     'main-menu': document.getElementById('view-main-menu'),
@@ -32,7 +32,6 @@ const views = {
 const labelFooterLeft = document.querySelector('.screen-footer-bar span:first-child');
 const labelFooterRight = document.querySelector('.screen-footer-bar span:last-child');
 
-// Define back navigation paths
 const backNavigationMap = {
     'games': 'main-menu',
     'settings': 'main-menu',
@@ -50,10 +49,9 @@ const backNavigationMap = {
 };
 
 // ==========================================================================
-// 2. Synthesizer & Web Audio Engine
+// 2. Audio Engine
 // ==========================================================================
 let audioCtx = null;
-let bgmOscillator = null;
 let bgmGainNode = null;
 let bgmInterval = null;
 
@@ -101,7 +99,6 @@ function playSFX(type) {
     gain.connect(audioCtx.destination);
 }
 
-// Retro Arpeggiated BGM Loop
 function startBGM() {
     if (!isMusicOn) return;
     initAudioContext();
@@ -147,7 +144,6 @@ function updateBGMVolume() {
     }
 }
 
-// Render Audio Screen State (Fixed character positions prevents layout jump)
 function renderAudioView() {
     const musicCheck = isMusicOn ? '[■] ON   [ ] OFF' : '[ ] ON   [■] OFF';
     const sfxCheck = isSFXOn ? '[■] ON   [ ] OFF' : '[ ] ON   [■] OFF';
@@ -156,9 +152,9 @@ function renderAudioView() {
     const filledBlocks = Math.round((masterVolume / 100) * totalBlocks);
     const barStr = '█'.repeat(filledBlocks) + '░'.repeat(totalBlocks - filledBlocks);
 
-    const prefix0 = currentAudioIndex === 0 ? '▶ ' : '  ';
-    const prefix1 = currentAudioIndex === 1 ? '▶ ' : '  ';
-    const prefix2 = currentAudioIndex === 2 ? '▶ ' : '  ';
+    const prefix0 = currentAudioIndex === 0 ? '> ' : '  ';
+    const prefix1 = currentAudioIndex === 1 ? '> ' : '  ';
+    const prefix2 = currentAudioIndex === 2 ? '> ' : '  ';
 
     const line0 = `${prefix0}Music (BGM) : ${musicCheck}`;
     const line1 = `${prefix1}Sound (SFX) : ${sfxCheck}`;
@@ -170,53 +166,52 @@ function renderAudioView() {
     }
 }
 
-// Render Primary Views (Main Menu, Games)
+// ==========================================================================
+// 3. Render Views & Selection Highlights
+// ==========================================================================
 function updateMenuVisuals(viewKey) {
     const menuItems = views[viewKey].querySelectorAll('.menu-item');
     menuItems.forEach((node, i) => {
         if (i === currentSelectionIndex) {
             node.classList.add('active');
-            node.textContent = `▶ ${node.textContent.replace('▶ ', '')}`;
+            node.textContent = `> ${node.textContent.replace(/^>\s*/, '')}`;
         } else {
             node.classList.remove('active');
-            node.textContent = node.textContent.replace('▶ ', '');
+            node.textContent = node.textContent.replace(/^>\s*/, '');
         }
     });
 }
 
-// Render Submenu Views (Settings, About)
 function updateSubMenuVisuals(viewKey) {
     const subItems = views[viewKey].querySelectorAll('.submenu-item');
     subItems.forEach((node, i) => {
         if (i === currentSubSelectionIndex) {
             node.classList.add('active');
-            node.textContent = `▶ ${node.textContent.replace('▶ ', '')}`;
+            node.textContent = `> ${node.textContent.replace(/^>\s*/, '')}`;
         } else {
             node.classList.remove('active');
-            node.textContent = node.textContent.replace('▶ ', '');
+            node.textContent = node.textContent.replace(/^>\s*/, '');
         }
     });
 }
 
-// Render Legal List Selection View
 function updateLegalMenuVisuals() {
     const legalItems = views['legal'].querySelectorAll('.legal-item');
     legalItems.forEach((node, i) => {
         if (i === currentLegalSelectionIndex) {
             node.classList.add('active');
-            node.textContent = `▶ ${node.textContent.replace('▶ ', '')}`;
+            node.textContent = `> ${node.textContent.replace(/^>\s*/, '')}`;
         } else {
             node.classList.remove('active');
-            node.textContent = node.textContent.replace('▶ ', '');
+            node.textContent = node.textContent.replace(/^>\s*/, '');
         }
     });
 }
 
-// Global Router Engine
 function changeView(targetView) {
     currentView = targetView;
     
-    if (targetView === 'about') {
+    if (targetView === 'games' || targetView === 'settings' || targetView === 'about') {
         currentSubSelectionIndex = 0;
     } else if (targetView === 'legal') {
         currentLegalSelectionIndex = 0;
@@ -240,9 +235,9 @@ function changeView(targetView) {
         labelFooterRight.textContent = "Back";
     }
     
-    if (targetView === 'main-menu' || targetView === 'games') {
+    if (targetView === 'main-menu') {
         updateMenuVisuals(targetView);
-    } else if (targetView === 'settings' || targetView === 'about') {
+    } else if (targetView === 'games' || targetView === 'settings' || targetView === 'about') {
         updateSubMenuVisuals(targetView);
     } else if (targetView === 'legal') {
         updateLegalMenuVisuals();
@@ -250,16 +245,16 @@ function changeView(targetView) {
 }
 
 // ==========================================================================
-// 3. Click & Directional Control Logic
+// 4. Input Listeners
 // ==========================================================================
 document.getElementById('btn-up').addEventListener('click', () => {
     playSFX('nav');
-    if (currentView === 'main-menu' || currentView === 'games') {
+    if (currentView === 'main-menu') {
         if (currentSelectionIndex > 0) {
             currentSelectionIndex--;
             updateMenuVisuals(currentView);
         }
-    } else if (currentView === 'settings' || currentView === 'about') {
+    } else if (currentView === 'games' || currentView === 'settings' || currentView === 'about') {
         if (currentSubSelectionIndex > 0) {
             currentSubSelectionIndex--;
             updateSubMenuVisuals(currentView);
@@ -279,13 +274,13 @@ document.getElementById('btn-up').addEventListener('click', () => {
 
 document.getElementById('btn-down').addEventListener('click', () => {
     playSFX('nav');
-    if (currentView === 'main-menu' || currentView === 'games') {
+    if (currentView === 'main-menu') {
         const items = views[currentView].querySelectorAll('.menu-item');
         if (currentSelectionIndex < items.length - 1) {
             currentSelectionIndex++;
             updateMenuVisuals(currentView);
         }
-    } else if (currentView === 'settings' || currentView === 'about') {
+    } else if (currentView === 'games' || currentView === 'settings' || currentView === 'about') {
         const subItems = views[currentView].querySelectorAll('.submenu-item');
         if (currentSubSelectionIndex < subItems.length - 1) {
             currentSubSelectionIndex++;
@@ -305,7 +300,6 @@ document.getElementById('btn-down').addEventListener('click', () => {
     }
 });
 
-// Left / Right controls for Audio Volume and Toggles
 document.getElementById('btn-left').addEventListener('click', () => {
     if (currentView === 'audio') {
         playSFX('nav');
@@ -338,7 +332,6 @@ document.getElementById('btn-right').addEventListener('click', () => {
     }
 });
 
-// A Button Action (Select / Enter)
 document.getElementById('btn-a').addEventListener('click', () => {
     playSFX('select');
     if (currentView === 'main-menu') {
@@ -350,39 +343,19 @@ document.getElementById('btn-a').addEventListener('click', () => {
             case 4: changeView('about'); break;
         }
     } else if (currentView === 'settings') {
-        if (currentSubSelectionIndex === 0) {
-            changeView('audio');
-        } else if (currentSubSelectionIndex === 1) {
-            changeView('controls');
-        } else if (currentSubSelectionIndex === 2) {
-            changeView('theme');
-        }
+        if (currentSubSelectionIndex === 0) changeView('audio');
+        else if (currentSubSelectionIndex === 1) changeView('controls');
+        else if (currentSubSelectionIndex === 2) changeView('theme');
     } else if (currentView === 'about') {
-        if (currentSubSelectionIndex === 0) {
-            changeView('careers'); 
-        } else if (currentSubSelectionIndex === 1) {
-            changeView('legal'); 
-        }
+        if (currentSubSelectionIndex === 0) changeView('careers'); 
+        else if (currentSubSelectionIndex === 1) changeView('legal'); 
     } else if (currentView === 'legal') {
-        if (currentLegalSelectionIndex === 0) {
-            changeView('privacy');
-        } else if (currentLegalSelectionIndex === 1) {
-            changeView('terms');
-        } else if (currentLegalSelectionIndex === 2) {
-            changeView('license'); 
-        }
-    } else if (currentView === 'audio') {
-        if (currentAudioIndex === 0) {
-            isMusicOn = !isMusicOn;
-            isMusicOn ? startBGM() : stopBGM();
-        } else if (currentAudioIndex === 1) {
-            isSFXOn = !isSFXOn;
-        }
-        renderAudioView();
+        if (currentLegalSelectionIndex === 0) changeView('privacy');
+        else if (currentLegalSelectionIndex === 1) changeView('terms');
+        else if (currentLegalSelectionIndex === 2) changeView('license'); 
     }
 });
 
-// B Button Action (Go Back)
 document.getElementById('btn-b').addEventListener('click', () => {
     playSFX('back');
     const fallbackView = backNavigationMap[currentView];
@@ -391,9 +364,6 @@ document.getElementById('btn-b').addEventListener('click', () => {
     }
 });
 
-// ==========================================================================
-// 4. Keyboard Controls Handler
-// ==========================================================================
 const keyboardMap = {
     'ArrowUp': 'btn-up', 'w': 'btn-up', 'W': 'btn-up',
     'ArrowDown': 'btn-down', 's': 'btn-down', 'S': 'btn-down',
