@@ -9,15 +9,15 @@ export class GridStack {
         this.blockSize = 8;
 
         this.boardX = Math.floor((this.width - this.cols * this.blockSize) / 2);
-        this.boardY = 18; // Pushed down to leave room for top score header
+        this.boardY = 18; // Space for the top header score
 
         this.grid = Array.from({ length: this.rows }, () => Array(this.cols).fill(0));
         this.score = 0;
         this.isGameOver = false;
 
         this.shapes = [
-            [[1, 1, 1, 1]], // I
-            [[1, 1], [1, 1]], // O
+            [[1, 1, 1, 1]],         // I
+            [[1, 1], [1, 1]],       // O
             [[0, 1, 0], [1, 1, 1]], // T
             [[1, 0, 0], [1, 1, 1]], // L
             [[0, 0, 1], [1, 1, 1]]  // J
@@ -78,7 +78,7 @@ export class GridStack {
                 this.grid.splice(r, 1);
                 this.grid.unshift(Array(this.cols).fill(0));
                 linesCleared++;
-                r++; // Re-check line at current index
+                r++;
             }
         }
         if (linesCleared > 0) {
@@ -133,41 +133,64 @@ export class GridStack {
         }
     }
 
+    // Helper method to draw retro 8x8 blocks with inner highlights and borders
+    drawRetroBlock(ctx, px, py) {
+        const DARK = '#1a2405';
+        const LIGHT = '#8b9d2e';
+
+        // Outer dark box
+        ctx.fillStyle = DARK;
+        ctx.fillRect(px, py, this.blockSize, this.blockSize);
+
+        // Top-Left inner bevel highlight
+        ctx.fillStyle = LIGHT;
+        ctx.fillRect(px + 1, py + 1, this.blockSize - 2, 1);
+        ctx.fillRect(px + 1, py + 1, 1, this.blockSize - 2);
+
+        // Center dark block core
+        ctx.fillStyle = DARK;
+        ctx.fillRect(px + 2, py + 2, this.blockSize - 3, this.blockSize - 3);
+    }
+
     render(ctx) {
-        // Draw Header Score
-        ctx.fillStyle = '#1a2405';
+        const DARK = '#1a2405';
+
+        // Score Header
+        ctx.fillStyle = DARK;
         ctx.font = 'bold 8px monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText(`SCORE: ${this.score}`, this.width / 2, 6);
 
-        // Draw Board Outer Frame
-        ctx.strokeStyle = '#1a2405';
+        // Board Outer Frame
+        ctx.strokeStyle = DARK;
         ctx.lineWidth = 1;
-        ctx.strokeRect(this.boardX - 2, this.boardY - 2, (this.cols * this.blockSize) + 4, (this.rows * this.blockSize) + 4);
+        ctx.strokeRect(
+            this.boardX - 2, 
+            this.boardY - 2, 
+            (this.cols * this.blockSize) + 4, 
+            (this.rows * this.blockSize) + 4
+        );
 
-        // Draw Board Grid Cells
+        // Placed Blocks on Board
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 if (this.grid[r][c]) {
-                    ctx.fillStyle = '#1a2405';
-                    ctx.fillRect(this.boardX + c * this.blockSize, this.boardY + r * this.blockSize, this.blockSize - 1, this.blockSize - 1);
+                    this.drawRetroBlock(ctx, this.boardX + c * this.blockSize, this.boardY + r * this.blockSize);
                 }
             }
         }
 
-        // Draw Falling Piece
+        // Active Falling Piece
         if (this.currentPiece) {
-            ctx.fillStyle = '#1a2405';
             const shape = this.currentPiece.shape;
             for (let r = 0; r < shape.length; r++) {
                 for (let c = 0; c < shape[r].length; c++) {
                     if (shape[r][c]) {
-                        ctx.fillRect(
-                            this.boardX + (this.currentPiece.x + c) * this.blockSize,
-                            this.boardY + (this.currentPiece.y + r) * this.blockSize,
-                            this.blockSize - 1,
-                            this.blockSize - 1
+                        this.drawRetroBlock(
+                            ctx, 
+                            this.boardX + (this.currentPiece.x + c) * this.blockSize, 
+                            this.boardY + (this.currentPiece.y + r) * this.blockSize
                         );
                     }
                 }
