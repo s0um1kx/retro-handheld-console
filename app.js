@@ -6,10 +6,18 @@ let currentSelectionIndex = 0;
 let currentSubSelectionIndex = 0;
 let currentLegalSelectionIndex = 0;
 
+// Audio Configuration State
+let currentAudioIndex = 0; // 0: Music, 1: Sound, 2: Master Vol
+let isMusicOn = true;
+let isSFXOn = true;
+let masterVolume = 60; // 0 to 100%
+
 const views = {
     'main-menu': document.getElementById('view-main-menu'),
     'games': document.getElementById('view-games'),
     'settings': document.getElementById('view-settings'),
+    'audio': document.getElementById('view-audio'),
+    'controls': document.getElementById('view-controls'),
     'blog': document.getElementById('view-blog'),
     'contact': document.getElementById('view-contact'),
     'about': document.getElementById('view-about'),
@@ -27,6 +35,8 @@ const labelFooterRight = document.querySelector('.screen-footer-bar span:last-ch
 const backNavigationMap = {
     'games': 'main-menu',
     'settings': 'main-menu',
+    'audio': 'settings',
+    'controls': 'settings',
     'blog': 'main-menu',
     'contact': 'main-menu',
     'about': 'main-menu',
@@ -36,6 +46,124 @@ const backNavigationMap = {
     'terms': 'legal',
     'license': 'legal'
 };
+
+// ==========================================================================
+// 2. Synthesizer & Web Audio Engine
+// ==========================================================================
+let audioCtx = null;
+let bgmOscillator = null;
+let bgmGainNode = null;
+let bgmInterval = null;
+
+function initAudioContext() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
+
+function playSFX(type) {
+    if (!isSFXOn) return;
+    initAudioContext();
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const effectiveVol = (masterVolume / 100) * 0.15;
+
+    osc.type = 'square';
+    gain.gain.setValueAtTime(effectiveVol, audioCtx.currentTime);
+
+    if (type === 'nav') {
+        osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(160, audioCtx.currentTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+    } else if (type === 'select') {
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    } else if (type === 'back') {
+        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(260, audioCtx.currentTime + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+}
+
+// Retro Arpeggiated BGM Loop
+function startBGM() {
+    if (!isMusicOn) return;
+    initAudioContext();
+    stopBGM();
+
+    const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+    let noteIdx = 0;
+
+    bgmGainNode = audioCtx.createGain();
+    bgmGainNode.gain.setValueAtTime((masterVolume / 100) * 0.05, audioCtx.currentTime);
+    bgmGainNode.connect(audioCtx.destination);
+
+    bgmInterval = setInterval(() => {
+        if (!isMusicOn) return;
+        const osc = audioCtx.createOscillator();
+        const noteGain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = notes[noteIdx];
+
+        noteGain.gain.setValueAtTime((masterVolume / 100) * 0.04, audioCtx.currentTime);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
+
+        osc.connect(noteGain);
+        noteGain.connect(bgmGainNode);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.18);
+
+        noteIdx = (noteIdx + 1) % notes.length;
+    }, 200);
+}
+
+function stopBGM() {
+    if (bgmInterval) {
+        clearInterval(bgmInterval);
+        bgmInterval = null;
+    }
+}
+
+function updateBGMVolume() {
+    if (bgmGainNode && audioCtx) {
+        bgmGainNode.gain.setValueAtTime((masterVolume / 100) * 0.05, audioCtx.currentTime);
+    }
+}
+
+// Render Audio Screen State
+function renderAudioView() {
+    const musicState = isMusicOn ? '▶ [ ON ] /  OFF ' : '  [ OFF] /  ON  ';
+    const sfxState = isSFXOn ? '▶ [ ON ] /  OFF ' : '  [ OFF] /  ON  ';
+
+    const totalBlocks = 10;
+    const filledBlocks = Math.round((masterVolume / 100) * totalBlocks);
+    const barStr = '█'.repeat(filledBlocks) + '░'.repeat(totalBlocks - filledBlocks);
+    const volPrefix = currentAudioIndex === 2 ? '▶ ' : '  ';
+
+    const line0 = currentAudioIndex === 0 ? `▶ Music (BGM) : ${isMusicOn ? '[ ON ] / OFF' : 'ON / [ OFF ]'}` : `  Music (BGM) : ${isMusicOn ? '[ ON ] / OFF' : 'ON / [ OFF ]'}`;
+    const line1 = currentAudioIndex === 1 ? `▶ Sound (SFX) : ${isSFXOn ? '[ ON ] / OFF' : 'ON / [ OFF ]'}` : `  Sound (SFX) : ${isSFXOn ? '[ ON ] / OFF' : 'ON / [ OFF ]'}`;
+    const line2 = `${volPrefix}Master Vol  : ${barStr} (${masterVolume}%)`;
+
+    const block = document.querySelector('.audio-config-block');
+    if (block) {
+        block.textContent = `=== AUDIO SETTINGS ===\n\n  [ SETTING ]   [ STATE ]\n${line0}\n${line1}\n${line2}\n\n======================\n [LEFT/RIGHT] Change\n [B/ESC] to Return`;
+    }
+}
 
 // Render Primary Views (Main Menu, Games)
 function updateMenuVisuals(viewKey) {
@@ -83,11 +211,13 @@ function updateLegalMenuVisuals() {
 function changeView(targetView) {
     currentView = targetView;
     
-    // Manage view selections cleanly
     if (targetView === 'about') {
         currentSubSelectionIndex = 0;
     } else if (targetView === 'legal') {
         currentLegalSelectionIndex = 0;
+    } else if (targetView === 'audio') {
+        currentAudioIndex = 0;
+        renderAudioView();
     }
     
     Object.values(views).forEach(v => {
@@ -105,7 +235,6 @@ function changeView(targetView) {
         labelFooterRight.textContent = "Back";
     }
     
-    // Sync active arrows immediately upon structural display
     if (targetView === 'main-menu' || targetView === 'games') {
         updateMenuVisuals(targetView);
     } else if (targetView === 'settings' || targetView === 'about') {
@@ -116,9 +245,10 @@ function changeView(targetView) {
 }
 
 // ==========================================================================
-// 2. Click Handling Logic
+// 3. Click & Directional Control Logic
 // ==========================================================================
 document.getElementById('btn-up').addEventListener('click', () => {
+    playSFX('nav');
     if (currentView === 'main-menu' || currentView === 'games') {
         if (currentSelectionIndex > 0) {
             currentSelectionIndex--;
@@ -134,10 +264,16 @@ document.getElementById('btn-up').addEventListener('click', () => {
             currentLegalSelectionIndex--;
             updateLegalMenuVisuals();
         }
+    } else if (currentView === 'audio') {
+        if (currentAudioIndex > 0) {
+            currentAudioIndex--;
+            renderAudioView();
+        }
     }
 });
 
 document.getElementById('btn-down').addEventListener('click', () => {
+    playSFX('nav');
     if (currentView === 'main-menu' || currentView === 'games') {
         const items = views[currentView].querySelectorAll('.menu-item');
         if (currentSelectionIndex < items.length - 1) {
@@ -156,11 +292,50 @@ document.getElementById('btn-down').addEventListener('click', () => {
             currentLegalSelectionIndex++;
             updateLegalMenuVisuals();
         }
+    } else if (currentView === 'audio') {
+        if (currentAudioIndex < 2) {
+            currentAudioIndex++;
+            renderAudioView();
+        }
     }
 });
 
-// A Button Action (Select/Enter View)
+// Left / Right controls for Audio Volume and Toggles
+document.getElementById('btn-left').addEventListener('click', () => {
+    if (currentView === 'audio') {
+        playSFX('nav');
+        if (currentAudioIndex === 0) {
+            isMusicOn = !isMusicOn;
+            isMusicOn ? startBGM() : stopBGM();
+        } else if (currentAudioIndex === 1) {
+            isSFXOn = !isSFXOn;
+        } else if (currentAudioIndex === 2) {
+            if (masterVolume >= 10) masterVolume -= 10;
+            updateBGMVolume();
+        }
+        renderAudioView();
+    }
+});
+
+document.getElementById('btn-right').addEventListener('click', () => {
+    if (currentView === 'audio') {
+        playSFX('nav');
+        if (currentAudioIndex === 0) {
+            isMusicOn = !isMusicOn;
+            isMusicOn ? startBGM() : stopBGM();
+        } else if (currentAudioIndex === 1) {
+            isSFXOn = !isSFXOn;
+        } else if (currentAudioIndex === 2) {
+            if (masterVolume <= 90) masterVolume += 10;
+            updateBGMVolume();
+        }
+        renderAudioView();
+    }
+});
+
+// A Button Action (Select / Enter)
 document.getElementById('btn-a').addEventListener('click', () => {
+    playSFX('select');
     if (currentView === 'main-menu') {
         switch(currentSelectionIndex) {
             case 0: changeView('games'); break;
@@ -168,6 +343,12 @@ document.getElementById('btn-a').addEventListener('click', () => {
             case 2: changeView('blog'); break;
             case 3: changeView('contact'); break;
             case 4: changeView('about'); break;
+        }
+    } else if (currentView === 'settings') {
+        if (currentSubSelectionIndex === 0) {
+            changeView('audio');
+        } else if (currentSubSelectionIndex === 1) {
+            changeView('controls');
         }
     } else if (currentView === 'about') {
         if (currentSubSelectionIndex === 0) {
@@ -183,11 +364,20 @@ document.getElementById('btn-a').addEventListener('click', () => {
         } else if (currentLegalSelectionIndex === 2) {
             changeView('license'); 
         }
+    } else if (currentView === 'audio') {
+        if (currentAudioIndex === 0) {
+            isMusicOn = !isMusicOn;
+            isMusicOn ? startBGM() : stopBGM();
+        } else if (currentAudioIndex === 1) {
+            isSFXOn = !isSFXOn;
+        }
+        renderAudioView();
     }
 });
 
-// B Button Action (Go Back through structured parent nodes)
+// B Button Action (Go Back)
 document.getElementById('btn-b').addEventListener('click', () => {
+    playSFX('back');
     const fallbackView = backNavigationMap[currentView];
     if (fallbackView) {
         changeView(fallbackView);
@@ -195,7 +385,7 @@ document.getElementById('btn-b').addEventListener('click', () => {
 });
 
 // ==========================================================================
-// 3. Hardware Controller Keyboard Mapping
+// 4. Keyboard Controls Handler
 // ==========================================================================
 const keyboardMap = {
     'ArrowUp': 'btn-up', 'w': 'btn-up', 'W': 'btn-up',
