@@ -1,14 +1,15 @@
 export class GridStack {
-    constructor(width, height, audio) {
+    constructor(width, height, audioManager) {
         this.width = width;
         this.height = height;
-        this.audio = audio;
-        
+        this.audio = audioManager;
+
         this.cols = 10;
-        this.rows = 18;
-        this.cellSize = 8;
-        this.offsetX = Math.floor((width - (this.cols * this.cellSize)) / 2);
-        this.offsetY = 10;
+        this.rows = 16;
+        this.blockSize = 8;
+
+        this.boardX = Math.floor((this.width - this.cols * this.blockSize) / 2);
+        this.boardY = 18; // Pushed down to leave room for top score header
 
         this.grid = Array.from({ length: this.rows }, () => Array(this.cols).fill(0));
         this.score = 0;
@@ -24,28 +25,29 @@ export class GridStack {
 
         this.spawnPiece();
         this.dropCounter = 0;
-        this.dropInterval = 30;
+        this.dropInterval = 30; // Frames per drop
     }
 
     spawnPiece() {
         const shape = this.shapes[Math.floor(Math.random() * this.shapes.length)];
         this.currentPiece = {
-            shape,
+            shape: shape,
             x: Math.floor(this.cols / 2) - Math.floor(shape[0].length / 2),
             y: 0
         };
+
         if (this.checkCollision(this.currentPiece.x, this.currentPiece.y, this.currentPiece.shape)) {
             this.isGameOver = true;
-            this.audio.playSFX('back');
         }
     }
 
-    checkCollision(x, y, shape) {
+    checkCollision(offsetX, offsetY, shape) {
         for (let r = 0; r < shape.length; r++) {
             for (let c = 0; c < shape[r].length; c++) {
                 if (shape[r][c]) {
-                    const newX = x + c;
-                    const newY = y + r;
+                    const newX = offsetX + c;
+                    const newY = offsetY + r;
+
                     if (newX < 0 || newX >= this.cols || newY >= this.rows) return true;
                     if (newY >= 0 && this.grid[newY][newX]) return true;
                 }
@@ -54,54 +56,14 @@ export class GridStack {
         return false;
     }
 
-    handleInput(action) {
-        if (this.isGameOver) return;
-
-        if (action === 'LEFT') {
-            if (!this.checkCollision(this.currentPiece.x - 1, this.currentPiece.y, this.currentPiece.shape)) {
-                this.currentPiece.x--;
-                this.audio.playSFX('nav');
-            }
-        } else if (action === 'RIGHT') {
-            if (!this.checkCollision(this.currentPiece.x + 1, this.currentPiece.y, this.currentPiece.shape)) {
-                this.currentPiece.x++;
-                this.audio.playSFX('nav');
-            }
-        } else if (action === 'DOWN') {
-            this.drop();
-        } else if (action === 'UP') {
-            this.rotate();
-        } else if (action === 'A') {
-            while (!this.drop()) {}
-        }
-    }
-
-    rotate() {
-        const rotated = this.currentPiece.shape[0].map((_, i) =>
-            this.currentPiece.shape.map(row => row[i]).reverse()
-        );
-        if (!this.checkCollision(this.currentPiece.x, this.currentPiece.y, rotated)) {
-            this.currentPiece.shape = rotated;
-            this.audio.playSFX('nav');
-        }
-    }
-
-    drop() {
-        if (!this.checkCollision(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) {
-            this.currentPiece.y++;
-            return false;
-        } else {
-            this.lockPiece();
-            return true;
-        }
-    }
-
-    lockPiece() {
+    mergePiece() {
         const shape = this.currentPiece.shape;
         for (let r = 0; r < shape.length; r++) {
             for (let c = 0; c < shape[r].length; c++) {
                 if (shape[r][c]) {
-                    this.grid[this.currentPiece.y + r][this.currentPiece.x + c] = 1;
+                    const gridY = this.currentPiece.y + r;
+                    const gridX = this.currentPiece.x + c;
+                    if (gridY >= 0) this.grid[gridY][gridX] = 1;
                 }
             }
         }
@@ -110,64 +72,106 @@ export class GridStack {
     }
 
     clearLines() {
-        let cleared = 0;
+        let linesCleared = 0;
         for (let r = this.rows - 1; r >= 0; r--) {
             if (this.grid[r].every(cell => cell === 1)) {
                 this.grid.splice(r, 1);
                 this.grid.unshift(Array(this.cols).fill(0));
-                cleared++;
-                r++;
+                linesCleared++;
+                r++; // Re-check line at current index
             }
         }
-        if (cleared > 0) {
-            this.score += cleared * 100;
+        if (linesCleared > 0) {
+            this.score += linesCleared * 100;
             this.audio.playSFX('select');
+        }
+    }
+
+    handleInput(action) {
+        if (this.isGameOver) return;
+
+        if (action === 'LEFT') {
+            if (!this.checkCollision(this.currentPiece.x - 1, this.currentPiece.y, this.currentPiece.shape)) {
+                this.currentPiece.x--;
+            }
+        } else if (action === 'RIGHT') {
+            if (!this.checkCollision(this.currentPiece.x + 1, this.currentPiece.y, this.currentPiece.shape)) {
+                this.currentPiece.x++;
+            }
+        } else if (action === 'DOWN') {
+            if (!this.checkCollision(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) {
+                this.currentPiece.y++;
+            }
+        } else if (action === 'UP') {
+            // Rotate
+            const rotated = this.currentPiece.shape[0].map((_, index) =>
+                this.currentPiece.shape.map(row => row[index]).reverse()
+            );
+            if (!this.checkCollision(this.currentPiece.x, this.currentPiece.y, rotated)) {
+                this.currentPiece.shape = rotated;
+            }
+        } else if (action === 'A') {
+            // Hard Drop
+            while (!this.checkCollision(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) {
+                this.currentPiece.y++;
+            }
+            this.mergePiece();
         }
     }
 
     update() {
         if (this.isGameOver) return;
+
         this.dropCounter++;
         if (this.dropCounter >= this.dropInterval) {
-            this.drop();
             this.dropCounter = 0;
+            if (!this.checkCollision(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) {
+                this.currentPiece.y++;
+            } else {
+                this.mergePiece();
+            }
         }
     }
 
     render(ctx) {
-        // Draw Border
+        // Draw Header Score
+        ctx.fillStyle = '#1a2405';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`SCORE: ${this.score}`, this.width / 2, 6);
+
+        // Draw Board Outer Frame
         ctx.strokeStyle = '#1a2405';
         ctx.lineWidth = 1;
-        ctx.strokeRect(this.offsetX - 1, this.offsetY - 1, (this.cols * this.cellSize) + 2, (this.rows * this.cellSize) + 2);
+        ctx.strokeRect(this.boardX - 2, this.boardY - 2, (this.cols * this.blockSize) + 4, (this.rows * this.blockSize) + 4);
 
-        // Draw Locked Grid
-        ctx.fillStyle = '#1a2405';
+        // Draw Board Grid Cells
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 if (this.grid[r][c]) {
-                    ctx.fillRect(this.offsetX + (c * this.cellSize), this.offsetY + (r * this.cellSize), this.cellSize - 1, this.cellSize - 1);
+                    ctx.fillStyle = '#1a2405';
+                    ctx.fillRect(this.boardX + c * this.blockSize, this.boardY + r * this.blockSize, this.blockSize - 1, this.blockSize - 1);
                 }
             }
         }
 
-        // Draw Current Piece
+        // Draw Falling Piece
         if (this.currentPiece) {
-            for (let r = 0; r < this.currentPiece.shape.length; r++) {
-                for (let c = 0; c < this.currentPiece.shape[r].length; c++) {
-                    if (this.currentPiece.shape[r][c]) {
+            ctx.fillStyle = '#1a2405';
+            const shape = this.currentPiece.shape;
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
                         ctx.fillRect(
-                            this.offsetX + ((this.currentPiece.x + c) * this.cellSize),
-                            this.offsetY + ((this.currentPiece.y + r) * this.cellSize),
-                            this.cellSize - 1,
-                            this.cellSize - 1
+                            this.boardX + (this.currentPiece.x + c) * this.blockSize,
+                            this.boardY + (this.currentPiece.y + r) * this.blockSize,
+                            this.blockSize - 1,
+                            this.blockSize - 1
                         );
                     }
                 }
             }
         }
-
-        // Score UI
-        ctx.font = '8px "Courier New", monospace';
-        ctx.fillText(`SCORE: ${this.score}`, 120, 20);
     }
 }

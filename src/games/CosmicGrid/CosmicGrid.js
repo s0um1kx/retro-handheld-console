@@ -1,28 +1,39 @@
 export class CosmicGrid {
-    constructor(width, height, audio) {
+    constructor(width, height, audioManager) {
         this.width = width;
         this.height = height;
-        this.audio = audio;
-        this.isGameOver = false;
-        this.score = 0;
+        this.audio = audioManager;
 
-        this.player = { x: width / 2 - 6, y: height - 20, w: 12, h: 6 };
+        this.player = {
+            x: width / 2 - 6,
+            y: height - 15,
+            width: 12,
+            height: 6,
+            speed: 2
+        };
+
         this.bullets = [];
-        this.invaders = [];
-        this.invaderDir = 1;
-        this.invaderStepTimer = 0;
+        this.aliens = [];
+        this.score = 0;
+        this.isGameOver = false;
 
-        this.initInvaders();
+        this.alienDirection = 1;
+        this.alienStepDown = false;
+
+        this.initAliens();
     }
 
-    initInvaders() {
-        for (let r = 0; r < 3; r++) {
-            for (let c = 0; c < 6; c++) {
-                this.invaders.push({
-                    x: 15 + (c * 20),
-                    y: 20 + (r * 15),
-                    w: 10,
-                    h: 8,
+    initAliens() {
+        this.aliens = [];
+        const rows = 3;
+        const cols = 6;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                this.aliens.push({
+                    x: 15 + c * 20,
+                    y: 25 + r * 14,
+                    width: 10,
+                    height: 8,
                     alive: true
                 });
             }
@@ -31,13 +42,22 @@ export class CosmicGrid {
 
     handleInput(action) {
         if (this.isGameOver) return;
-        if (action === 'LEFT' && this.player.x > 5) {
-            this.player.x -= 6;
-        } else if (action === 'RIGHT' && this.player.x < this.width - 17) {
-            this.player.x += 6;
-        } else if (action === 'A' && this.bullets.length < 2) {
-            this.bullets.push({ x: this.player.x + 5, y: this.player.y - 4, w: 2, h: 4 });
-            this.audio.playSFX('select');
+
+        if (action === 'LEFT') {
+            this.player.x = Math.max(4, this.player.x - this.player.speed);
+        } else if (action === 'RIGHT') {
+            this.player.x = Math.min(this.width - this.player.width - 4, this.player.x + this.player.speed);
+        } else if (action === 'A') {
+            if (this.bullets.length < 3) {
+                this.bullets.push({
+                    x: this.player.x + this.player.width / 2 - 1,
+                    y: this.player.y,
+                    width: 2,
+                    height: 4,
+                    speed: 4
+                });
+                this.audio.playSFX('select');
+            }
         }
     }
 
@@ -45,68 +65,78 @@ export class CosmicGrid {
         if (this.isGameOver) return;
 
         // Bullets logic
-        this.bullets.forEach((b, idx) => {
-            b.y -= 4;
-            if (b.y < 0) this.bullets.splice(idx, 1);
+        this.bullets.forEach((b, index) => {
+            b.y -= b.speed;
+            if (b.y < 0) this.bullets.splice(index, 1);
         });
 
-        // Invader movement
-        this.invaderStepTimer++;
-        if (this.invaderStepTimer > 25) {
-            this.invaderStepTimer = 0;
-            let edgeReached = false;
+        // Alien movement
+        let edgeReached = false;
+        const activeAliens = this.aliens.filter(a => a.alive);
 
-            this.invaders.forEach(inv => {
-                if (!inv.alive) return;
-                inv.x += this.invaderDir * 4;
-                if (inv.x <= 5 || inv.x >= this.width - 15) edgeReached = true;
-            });
-
-            if (edgeReached) {
-                this.invaderDir *= -1;
-                this.invaders.forEach(inv => {
-                    if (inv.alive) inv.y += 6;
-                    if (inv.alive && inv.y >= this.player.y - 8) this.isGameOver = true;
-                });
-            }
+        if (activeAliens.length === 0) {
+            this.initAliens();
+            return;
         }
 
-        // Bullet-Invader Collisions
+        activeAliens.forEach(a => {
+            if ((a.x <= 5 && this.alienDirection === -1) || (a.x >= this.width - a.width - 5 && this.alienDirection === 1)) {
+                edgeReached = true;
+            }
+        });
+
+        if (edgeReached) {
+            this.alienDirection *= -1;
+            activeAliens.forEach(a => {
+                a.y += 4;
+                if (a.y + a.height >= this.player.y) {
+                    this.isGameOver = true;
+                }
+            });
+        } else {
+            activeAliens.forEach(a => {
+                a.x += 0.3 * this.alienDirection;
+            });
+        }
+
+        // Bullet & Alien Collision Detection
         this.bullets.forEach((b, bIdx) => {
-            this.invaders.forEach(inv => {
-                if (inv.alive && b.x >= inv.x && b.x <= inv.x + inv.w && b.y >= inv.y && b.y <= inv.y + inv.h) {
-                    inv.alive = false;
+            this.aliens.forEach(a => {
+                if (a.alive &&
+                    b.x < a.x + a.width &&
+                    b.x + b.width > a.x &&
+                    b.y < a.y + a.height &&
+                    b.y + b.height > a.y) {
+                    a.alive = false;
                     this.bullets.splice(bIdx, 1);
-                    this.score += 50;
-                    this.audio.playSFX('nav');
+                    this.score += 20;
                 }
             });
         });
-
-        if (this.invaders.every(i => !i.alive)) {
-            this.initInvaders();
-        }
     }
 
     render(ctx) {
+        // Draw Score Overlay Top-Left
         ctx.fillStyle = '#1a2405';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`SCORE: ${this.score}`, 6, 6);
 
         // Draw Player Ship
-        ctx.fillRect(this.player.x, this.player.y, this.player.w, this.player.h);
-        ctx.fillRect(this.player.x + 4, this.player.y - 3, 4, 3);
+        ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+        ctx.fillRect(this.player.x + 4, this.player.y - 2, 4, 2);
 
         // Draw Bullets
-        this.bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
-
-        // Draw Invaders
-        this.invaders.forEach(inv => {
-            if (inv.alive) {
-                ctx.fillRect(inv.x, inv.y, inv.w, inv.h);
-            }
+        this.bullets.forEach(b => {
+            ctx.fillRect(b.x, b.y, b.width, b.height);
         });
 
-        // Draw Score
-        ctx.font = '8px "Courier New", monospace';
-        ctx.fillText(`SCORE: ${this.score}`, 10, 10);
+        // Draw Aliens
+        this.aliens.forEach(a => {
+            if (a.alive) {
+                ctx.fillRect(a.x, a.y, a.width, a.height);
+            }
+        });
     }
 }

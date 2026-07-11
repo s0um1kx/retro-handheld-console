@@ -9,7 +9,8 @@ export const PRE_GAME_CARDS = {
             { key: '[A Button]', action: 'Hard Drop' },
             { key: '[B Button]', action: 'Hold' }
         ],
-        tip: null
+        tip: null,
+        comingSoon: false
     },
     'Cosmic Grid': {
         title: 'COSMIC GRID',
@@ -19,7 +20,8 @@ export const PRE_GAME_CARDS = {
             { key: '[A Button]', action: 'Fire Laser' },
             { key: '[B Button]', action: 'Deploy Shield' }
         ],
-        tip: 'TIP: Shoot UFOs for bonus points!'
+        tip: 'TIP: Shoot UFOs for bonus points!',
+        comingSoon: false
     },
     'Byte Eater': {
         title: 'BYTE EATER',
@@ -28,7 +30,8 @@ export const PRE_GAME_CARDS = {
             { key: '[D-Pad]', action: 'Change Dir' },
             { key: '[A Button]', action: 'Boost Speed' }
         ],
-        tip: 'TIP: Avoid biting your own tail!'
+        tip: 'TIP: Avoid biting your own tail!',
+        comingSoon: false
     },
     'Pocket Jumper': {
         title: 'POCKET JUMPER',
@@ -39,17 +42,15 @@ export const PRE_GAME_CARDS = {
             { key: '[A] (In Air)', action: 'Double Jump' },
             { key: '[B Button]', action: 'Sprint' }
         ],
-        tip: null
+        tip: null,
+        comingSoon: false
     },
     'Micro Quest': {
         title: 'MICRO QUEST',
-        goal: ['Goal: Defeat the dungeon boss', 'and collect key loot.'],
-        controls: [
-            { key: '[D-Pad]', action: 'Move / Cursor' },
-            { key: '[A Button]', action: 'Select / Attack' },
-            { key: '[B Button]', action: 'Cancel / Items' }
-        ],
-        tip: 'TIP: Save potions for bosses!'
+        goal: ['Under Construction!'],
+        controls: [],
+        tip: 'Check back in a future update!',
+        comingSoon: true
     }
 };
 
@@ -61,11 +62,9 @@ export class PreGameCardRenderer {
         const LCD_BG = '#8b9d2e';
         const LCD_TEXT = '#1a2405';
 
-        // Background
         ctx.fillStyle = LCD_BG;
         ctx.fillRect(0, 0, width, height);
 
-        // Canvas Border Frame
         ctx.strokeStyle = LCD_TEXT;
         ctx.lineWidth = 1;
         ctx.strokeRect(3, 3, width - 6, height - 6);
@@ -80,6 +79,21 @@ export class PreGameCardRenderer {
 
         // Inner Content Box
         ctx.strokeRect(7, 30, width - 14, height - 37);
+
+        if (config.comingSoon) {
+            ctx.font = 'bold 12px monospace';
+            ctx.fillText('*** COMING SOON ***', width / 2, 75);
+            ctx.font = '8px monospace';
+            ctx.fillText('This game is currently', width / 2, 95);
+            ctx.fillText('under development.', width / 2, 107);
+            
+            ctx.font = 'italic 7px monospace';
+            ctx.fillText(config.tip, width / 2, 130);
+
+            ctx.font = 'bold 8px monospace';
+            ctx.fillText('[B] BACK TO MENU', width / 2, height - 12);
+            return;
+        }
 
         let currentY = 43;
 
@@ -97,7 +111,7 @@ export class PreGameCardRenderer {
         ctx.fillText('CONTROLS:', width / 2, currentY);
         currentY += 10;
 
-        // Controls List Alignment
+        // Controls List
         ctx.font = '7px monospace';
         config.controls.forEach(ctrl => {
             ctx.textAlign = 'left';
@@ -107,7 +121,6 @@ export class PreGameCardRenderer {
             currentY += 9;
         });
 
-        // Optional Tip Line
         if (config.tip) {
             currentY += 2;
             ctx.textAlign = 'center';
@@ -115,7 +128,6 @@ export class PreGameCardRenderer {
             ctx.fillText(config.tip, width / 2, currentY);
         }
 
-        // Animated Blink Prompt at Bottom
         const blink = Math.floor(Date.now() / 500) % 2 === 0;
         if (blink) {
             ctx.textAlign = 'center';

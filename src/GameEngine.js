@@ -1,4 +1,4 @@
-import { PreGameCardRenderer } from './PreGameCard.js';
+import { PreGameCardRenderer, PRE_GAME_CARDS } from './PreGameCard.js';
 
 export class GameEngine {
     constructor(canvas, audioManager) {
@@ -32,32 +32,41 @@ export class GameEngine {
         this.state = 'IDLE';
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
         }
         this.ctx.clearRect(0, 0, this.width, this.height);
     }
 
-handleInput(action) {
-    if (this.state === 'CARD') {
-        if (action === 'A') {
-            this.audio.playSFX('select');
-            this.startGame();
-        } else if (action === 'B') {
-            this.audio.playSFX('back');
-            this.stop();
-            return 'EXIT';
+    handleInput(action) {
+        if (this.state === 'CARD') {
+            const cardConfig = PRE_GAME_CARDS[this.currentGameKey];
+            
+            if (action === 'A') {
+                // Prevent starting games marked as coming soon
+                if (cardConfig && cardConfig.comingSoon) {
+                    return 'CONTINUE';
+                }
+                this.audio.playSFX('select');
+                this.startGame();
+            } else if (action === 'B') {
+                this.audio.playSFX('back');
+                this.stop();
+                return 'EXIT';
+            }
+        } else if (this.state === 'PLAYING' || this.state === 'GAME_OVER') {
+            // Allow exit on [B] press during both live gameplay and game over states
+            if (action === 'B') {
+                this.audio.playSFX('back');
+                this.stop();
+                return 'EXIT';
+            }
+            if (this.currentGameInstance && typeof this.currentGameInstance.handleInput === 'function') {
+                this.currentGameInstance.handleInput(action);
+            }
         }
-    } else if (this.state === 'PLAYING' || this.state === 'GAME_OVER') {
-        if (action === 'B') {
-            this.audio.playSFX('back');
-            this.stop();
-            return 'EXIT';
-        }
-        if (this.currentGameInstance && typeof this.currentGameInstance.handleInput === 'function') {
-            this.currentGameInstance.handleInput(action);
-        }
+        return 'CONTINUE';
     }
-    return 'CONTINUE';
-}
+
     startLoop() {
         const loop = () => {
             this.update();
@@ -93,13 +102,14 @@ handleInput(action) {
 
     renderGameOver() {
         this.ctx.fillStyle = 'rgba(26, 36, 5, 0.85)';
-        this.ctx.fillRect(10, 50, 140, 60);
+        this.ctx.fillRect(10, 55, 140, 60);
 
         this.ctx.fillStyle = '#8b9d2e';
         this.ctx.font = 'bold 12px "Courier New", monospace';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('GAME OVER', 80, 75);
+        this.ctx.textBaseline = 'alphabetic';
+        this.ctx.fillText('GAME OVER', 80, 80);
         this.ctx.font = '9px "Courier New", monospace';
-        this.ctx.fillText('Press [B] to Exit', 80, 95);
+        this.ctx.fillText('Press [B] to Exit', 80, 100);
     }
 }
