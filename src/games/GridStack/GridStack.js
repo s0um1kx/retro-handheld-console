@@ -8,11 +8,13 @@ export class GridStack {
         this.rows = 16;
         this.blockSize = 8;
 
-        this.boardX = Math.floor((this.width - this.cols * this.blockSize) / 2);
-        this.boardY = 18; // Space for the top header score
+        // Perfectly center board: 80px width on 160px canvas leaves 40px on left/right
+        this.boardX = 40; 
+        this.boardY = 20;
 
         this.grid = Array.from({ length: this.rows }, () => Array(this.cols).fill(0));
         this.score = 0;
+        this.lines = 0;
         this.isGameOver = false;
 
         this.shapes = [
@@ -23,18 +25,25 @@ export class GridStack {
             [[0, 0, 1], [1, 1, 1]]  // J
         ];
 
+        this.nextShape = this.getRandomShape();
         this.spawnPiece();
+
         this.dropCounter = 0;
-        this.dropInterval = 30; // Frames per drop
+        this.dropInterval = 30;
+    }
+
+    getRandomShape() {
+        return this.shapes[Math.floor(Math.random() * this.shapes.length)];
     }
 
     spawnPiece() {
-        const shape = this.shapes[Math.floor(Math.random() * this.shapes.length)];
         this.currentPiece = {
-            shape: shape,
-            x: Math.floor(this.cols / 2) - Math.floor(shape[0].length / 2),
+            shape: this.nextShape || this.getRandomShape(),
+            x: Math.floor(this.cols / 2) - Math.floor((this.nextShape || this.shapes[0])[0].length / 2),
             y: 0
         };
+
+        this.nextShape = this.getRandomShape();
 
         if (this.checkCollision(this.currentPiece.x, this.currentPiece.y, this.currentPiece.shape)) {
             this.isGameOver = true;
@@ -54,6 +63,14 @@ export class GridStack {
             }
         }
         return false;
+    }
+
+    getGhostY() {
+        let ghostY = this.currentPiece.y;
+        while (!this.checkCollision(this.currentPiece.x, ghostY + 1, this.currentPiece.shape)) {
+            ghostY++;
+        }
+        return ghostY;
     }
 
     mergePiece() {
@@ -82,6 +99,7 @@ export class GridStack {
             }
         }
         if (linesCleared > 0) {
+            this.lines += linesCleared;
             this.score += linesCleared * 100;
             this.audio.playSFX('select');
         }
@@ -103,7 +121,6 @@ export class GridStack {
                 this.currentPiece.y++;
             }
         } else if (action === 'UP') {
-            // Rotate
             const rotated = this.currentPiece.shape[0].map((_, index) =>
                 this.currentPiece.shape.map(row => row[index]).reverse()
             );
@@ -111,7 +128,6 @@ export class GridStack {
                 this.currentPiece.shape = rotated;
             }
         } else if (action === 'A') {
-            // Hard Drop
             while (!this.checkCollision(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) {
                 this.currentPiece.y++;
             }
@@ -133,21 +149,27 @@ export class GridStack {
         }
     }
 
-    // Helper method to draw retro 8x8 blocks with inner highlights and borders
-    drawRetroBlock(ctx, px, py) {
+    drawRetroBlock(ctx, px, py, isGhost = false) {
         const DARK = '#1a2405';
         const LIGHT = '#8b9d2e';
 
-        // Outer dark box
+        if (isGhost) {
+            ctx.strokeStyle = DARK;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(px + 0.5, py + 0.5, this.blockSize - 1, this.blockSize - 1);
+            return;
+        }
+
+        // Outer Dark Fill
         ctx.fillStyle = DARK;
         ctx.fillRect(px, py, this.blockSize, this.blockSize);
 
-        // Top-Left inner bevel highlight
+        // Top-Left Bevel Highlight
         ctx.fillStyle = LIGHT;
         ctx.fillRect(px + 1, py + 1, this.blockSize - 2, 1);
         ctx.fillRect(px + 1, py + 1, 1, this.blockSize - 2);
 
-        // Center dark block core
+        // Core Dark Box
         ctx.fillStyle = DARK;
         ctx.fillRect(px + 2, py + 2, this.blockSize - 3, this.blockSize - 3);
     }
@@ -155,24 +177,70 @@ export class GridStack {
     render(ctx) {
         const DARK = '#1a2405';
 
-        // Score Header
+        // 1. Header Score Indicator
         ctx.fillStyle = DARK;
         ctx.font = 'bold 8px monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText(`SCORE: ${this.score}`, this.width / 2, 6);
+        ctx.fillText(`SCORE: ${this.score}`, this.width / 2, 5);
 
-        // Board Outer Frame
+        // 2. Playfield Main Frame
         ctx.strokeStyle = DARK;
         ctx.lineWidth = 1;
         ctx.strokeRect(
-            this.boardX - 2, 
-            this.boardY - 2, 
-            (this.cols * this.blockSize) + 4, 
-            (this.rows * this.blockSize) + 4
+            this.boardX - 1, 
+            this.boardY - 1, 
+            (this.cols * this.blockSize) + 2, 
+            (this.rows * this.blockSize) + 2
         );
 
-        // Placed Blocks on Board
+        // 3. Selective Matrix Grid Dots (Only drawn on empty cells)
+        const ghostY = this.currentPiece ? this.getGhostY() : -1;
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                const isOccupied = this.grid[r][c] === 1;
+                
+                let isPiece = false;
+                let isGhost = false;
+                if (this.currentPiece) {
+                    const p = this.currentPiece;
+                    const pr = r - p.y;
+                    const pc = c - p.x;
+                    if (pr >= 0 && pr < p.shape.length && pc >= 0 && pc < p.shape[0].length && p.shape[pr][pc]) {
+                        isPiece = true;
+                    }
+
+                    const gr = r - ghostY;
+                    if (gr >= 0 && gr < p.shape.length && pc >= 0 && pc < p.shape[0].length && p.shape[gr][pc]) {
+                        isGhost = true;
+                    }
+                }
+
+                if (!isOccupied && !isPiece && !isGhost) {
+                    ctx.fillStyle = DARK;
+                    ctx.fillRect(this.boardX + c * this.blockSize + 3, this.boardY + r * this.blockSize + 3, 1, 1);
+                }
+            }
+        }
+
+        // 4. Ghost Drop Position
+        if (this.currentPiece) {
+            const shape = this.currentPiece.shape;
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
+                        this.drawRetroBlock(
+                            ctx, 
+                            this.boardX + (this.currentPiece.x + c) * this.blockSize, 
+                            this.boardY + (ghostY + r) * this.blockSize,
+                            true
+                        );
+                    }
+                }
+            }
+        }
+
+        // 5. Placed Grid Blocks
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 if (this.grid[r][c]) {
@@ -181,7 +249,7 @@ export class GridStack {
             }
         }
 
-        // Active Falling Piece
+        // 6. Active Falling Piece
         if (this.currentPiece) {
             const shape = this.currentPiece.shape;
             for (let r = 0; r < shape.length; r++) {
@@ -192,6 +260,33 @@ export class GridStack {
                             this.boardX + (this.currentPiece.x + c) * this.blockSize, 
                             this.boardY + (this.currentPiece.y + r) * this.blockSize
                         );
+                    }
+                }
+            }
+        }
+
+        // 7. Clean Left HUD: Lines Count
+        ctx.fillStyle = DARK;
+        ctx.font = '7px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('LINES', 20, 30);
+        ctx.font = 'bold 9px monospace';
+        ctx.fillText(`${this.lines}`, 20, 42);
+
+        // 8. Clean Right HUD: Next Piece
+        ctx.font = '7px monospace';
+        ctx.fillText('NEXT', 140, 30);
+
+        if (this.nextShape) {
+            const nRows = this.nextShape.length;
+            const nCols = this.nextShape[0].length;
+            const startX = 140 - Math.floor((nCols * 4) / 2);
+            const startY = 42;
+
+            for (let r = 0; r < nRows; r++) {
+                for (let c = 0; c < nCols; c++) {
+                    if (this.nextShape[r][c]) {
+                        ctx.fillRect(startX + c * 4, startY + r * 4, 3, 3);
                     }
                 }
             }
